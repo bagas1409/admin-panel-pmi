@@ -40,10 +40,10 @@ export default function LoginPage() {
             <ShieldCheck className="h-9 w-9 text-white" />
           </div>
           <h1 className="text-2xl font-semibold text-white tracking-tight">
-            PMI Donorku Admin
+            PMI Pringsewu
           </h1>
           <p className="mt-1 text-sm text-white/70">
-            Panel Administrasi UDD PMI Pringsewu
+            Dashboard Aplikasi PMI Pringsewu
           </p>
         </div>
 
@@ -108,7 +108,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="mt-6 text-center text-xs text-white/50">
-          © {new Date().getFullYear()} PMI Pringsewu · Admin Panel
+          © {new Date().getFullYear()} FTI Universitas Aisyah Pringsewu
         </p>
       </div>
     </div>

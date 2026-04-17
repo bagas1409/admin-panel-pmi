@@ -5,7 +5,7 @@ import {
   ShieldCheck,
   CalendarDays,
   RadioTower,
-  Users
+  Users,
 } from "lucide-react";
 
 const navItems = [
@@ -13,7 +13,7 @@ const navItems = [
   { to: "/events", label: "Event Keliling", icon: CalendarDays },
   { to: "/regions", label: "Manajemen UDD", icon: MapPin },
   { to: "/broadcast", label: "Siaran Darurat", icon: RadioTower },
-  { to: "/donors", label: "Relawan", icon: Users }
+  { to: "/donors", label: "Relawan", icon: Users },
 ];
 
 export default function Sidebar() {
@@ -23,7 +23,7 @@ export default function Sidebar() {
       <div className="h-16 flex items-center px-6 border-b border-[var(--border)]">
         <ShieldCheck className="w-8 h-8 text-[var(--primary)]" />
         <span className="ml-3 text-xl font-bold text-[var(--text)]">
-          PMI <span className="text-[var(--primary)]">Donorku</span>
+          PMI <span className="text-[var(--primary)]">Pringsewu</span>
         </span>
       </div>
 
@@ -35,9 +35,10 @@ export default function Sidebar() {
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${isActive
-                    ? "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white shadow-md shadow-red-500/20"
-                    : "text-[var(--text-muted)] hover:bg-[var(--background)] hover:text-[var(--primary)]"
+                  `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white shadow-md shadow-red-500/20"
+                      : "text-[var(--text-muted)] hover:bg-[var(--background)] hover:text-[var(--primary)]"
                   }`
                 }
               >
@@ -52,7 +53,8 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="p-4 border-t border-[var(--border)]">
         <p className="text-xs text-[var(--text-muted)] text-center">
-          Hak Cipta © {new Date().getFullYear()} PMI Pringsewu
+          Hak Cipta © {new Date().getFullYear()} FTI Universitas Aisyah
+          Pringsewu
         </p>
       </div>
     </aside>
