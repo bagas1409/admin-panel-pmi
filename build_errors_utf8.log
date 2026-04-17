@@ -1,0 +1,31 @@
+﻿src/api/audit.ts(2,15): error TS2305: Module '"@/types"' has no exported member 'AuditLog'.
+src/api/dispute.ts(2,15): error TS2305: Module '"@/types"' has no exported member 'Dispute'.
+src/api/order.ts(2,15): error TS2305: Module '"@/types"' has no exported member 'Order'.
+src/api/umkm.ts(2,15): error TS2305: Module '"@/types"' has no exported member 'UMKMProfile'.
+src/pages/audit/AuditLogsPage.tsx(4,15): error TS2305: Module '"@/types"' has no exported member 'AuditLog'.
+src/pages/dashboard/DashboardPage.tsx(3,1): error TS6133: 'StatCard' is declared but its value is never read.
+src/pages/disputes/DisputesPage.tsx(6,15): error TS2305: Module '"@/types"' has no exported member 'Dispute'.
+src/pages/orders/OrdersPage.tsx(5,15): error TS2305: Module '"@/types"' has no exported member 'Order'.
+src/pages/orders/OrdersPage.tsx(134,61): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ readonly PENDING: "warning"; readonly PAID: "primary"; readonly SHIPPED: "primary"; readonly COMPLETED: "success"; readonly CANCELLED: "danger"; }'.
+src/pages/orders/OrdersPage.tsx(137,61): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ readonly PENDING: "warning"; readonly PAID: "success"; readonly FAILED: "danger"; readonly REFUNDED: "default"; }'.
+src/pages/orders/OrdersPage.tsx(174,53): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ readonly PENDING: "warning"; readonly PAID: "primary"; readonly SHIPPED: "primary"; readonly COMPLETED: "success"; readonly CANCELLED: "danger"; }'.
+src/pages/orders/OrdersPage.tsx(180,53): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ readonly PENDING: "warning"; readonly PAID: "success"; readonly FAILED: "danger"; readonly REFUNDED: "default"; }'.
+src/pages/umkm/UMKMVerificationPage.tsx(6,15): error TS2305: Module '"@/types"' has no exported member 'UMKMProfile'.
+src/pages/users/UsersPage.tsx(79,18): error TS2339: Property 'name' does not exist on type 'User'.
+src/pages/users/UsersPage.tsx(84,42): error TS2339: Property 'status' does not exist on type 'User'.
+src/pages/users/UsersPage.tsx(85,42): error TS2339: Property 'status' does not exist on type 'User'.
+src/pages/users/UsersPage.tsx(179,112): error TS2339: Property 'name' does not exist on type 'User'.
+src/pages/users/UsersPage.tsx(186,87): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+src/pages/users/UsersPage.tsx(187,63): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+src/pages/users/UsersPage.tsx(187,92): error TS2367: This comparison appears to be unintentional because the types '"USER" | "ADMIN_PMI" | "HOSPITAL"' and '"ADMIN"' have no overlap.
+src/pages/users/UsersPage.tsx(193,50): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+src/pages/users/UsersPage.tsx(199,66): error TS2339: Property 'status' does not exist on type 'User'.
+src/pages/users/UsersPage.tsx(200,55): error TS2339: Property 'status' does not exist on type 'User'.
+src/pages/users/UsersPage.tsx(204,46): error TS2367: This comparison appears to be unintentional because the types '"USER" | "ADMIN_PMI" | "HOSPITAL"' and '"ADMIN"' have no overlap.
+src/pages/users/UsersPage.tsx(205,54): error TS2339: Property 'status' does not exist on type 'User'.
+src/pages/users/UsersPage.tsx(209,84): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+src/pages/users/UsersPage.tsx(210,67): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+src/pages/users/UsersPage.tsx(211,66): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+src/pages/users/UsersPage.tsx(220,82): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.
+src/pages/users/UsersPage.tsx(221,67): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
+src/pages/users/UsersPage.tsx(222,66): error TS2367: This comparison appears to be unintentional because the types 'number | null' and 'string' have no overlap.
