@@ -23,7 +23,7 @@ export default function Sidebar() {
       <div className="h-16 flex items-center px-6 border-b border-[var(--border)]">
         <ShieldCheck className="w-8 h-8 text-[var(--primary)]" />
         <span className="ml-3 text-xl font-bold text-[var(--text)]">
-          PMI <span className="text-[var(--primary)]">Pringsewu</span>
+          PMI <span className="text-[var(--primary)]">DonorKu</span>
         </span>
       </div>
 

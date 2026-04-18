@@ -40,7 +40,7 @@ export default function LoginPage() {
             <ShieldCheck className="h-9 w-9 text-white" />
           </div>
           <h1 className="text-2xl font-semibold text-white tracking-tight">
-            PMI Pringsewu
+            PMI DonorKu
           </h1>
           <p className="mt-1 text-sm text-white/70">
             Dashboard Aplikasi PMI Pringsewu
