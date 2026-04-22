@@ -1,24 +1,12 @@
-import { useEffect, useState, FormEvent } from "react";
+import { useEffect, useState } from "react";
 import {
-  Droplet,
   MapPin,
   Activity,
-  Settings2,
-  X,
   Users,
   Clock,
 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
 import api from "@/api/axios";
 import type { Region } from "@/types";
-
-// Semua tipe produk darah yang dikenal
-const PRODUCT_TYPES = [
-  { code: "WB", label: "Whole Blood", short: "WB" },
-  { code: "PRC", label: "Packed Red Cells", short: "PRC" },
-  { code: "TC", label: "Thrombocyte Concentrate", short: "TC" },
-  { code: "FFP", label: "Fresh Frozen Plasma", short: "FFP" },
-];
 
 const BLOOD_TYPES = ["A", "B", "O", "AB"] as const;
 type BloodType = (typeof BLOOD_TYPES)[number];
@@ -99,17 +87,6 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Form Modal (manual upsert — deprecated, dibiarkan sementara)
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRegionId, setSelectedRegionId] = useState<string>("");
-  const [savingStock, setSavingStock] = useState(false);
-  const [stockForm, setStockForm] = useState({
-    bloodType: "A",
-    productType: "WB",
-    quantity: 0,
-  });
-
   const fetchDashboardData = async () => {
     setLoading(true);
     setError(null);
@@ -121,11 +98,6 @@ export default function DashboardPage() {
       // Juga ambil matriks lengkap untuk tabel detail produk (PRC/TC/FFP)
       const { data: matriksRes } = await api.get("/blood-stocks");
       const regionsRaw: RegionWithStock[] = matriksRes.data;
-
-      if (summary.regions.length > 0 && !selectedRegionId) {
-        setSelectedRegionId(summary.regions[0].id);
-      }
-
       setStats({
         totalA: summary.byBloodType.A || 0,
         totalB: summary.byBloodType.B || 0,
@@ -154,33 +126,6 @@ export default function DashboardPage() {
     const interval = setInterval(fetchDashboardData, 60000);
     return () => clearInterval(interval);
   }, []);
-
-  const handleSaveStock = async (e: FormEvent) => {
-    e.preventDefault();
-    setSavingStock(true);
-    try {
-      await api.post("/blood-stocks/upsert", {
-        regionId: selectedRegionId,
-        bloodType: stockForm.bloodType,
-        productType: stockForm.productType,
-        quantity: Number(stockForm.quantity),
-      });
-      setIsModalOpen(false);
-      fetchDashboardData();
-    } catch (err: any) {
-      alert(
-        err?.response?.data?.message || "Gagal menyimpan update stok darah",
-      );
-    } finally {
-      setSavingStock(false);
-    }
-  };
-
-  // Helper tidak lagi digunakan — reserved jika modal matriks kembali diperlukan
-  // const toggleRegion = ...
-  // (helper getStockMatrix dihapus — tidak lagi digunakan setelah refactor ke summary endpoint)
-
-
   return (
     <div className="space-y-8 relative">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -193,13 +138,6 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex gap-3">
-          <button
-            onClick={() => setIsModalOpen(true)}
-            className="bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 px-4 py-2 rounded-xl flex items-center text-sm font-semibold shadow-sm transition-colors cursor-pointer"
-          >
-            <Settings2 className="w-4 h-4 mr-2 text-gray-600" /> Modulator Stok
-            (Admin)
-          </button>
           <div className="bg-red-50 text-[var(--primary)] px-4 py-2 rounded-xl border border-red-100 flex items-center text-sm font-semibold shadow-sm">
             <Activity className="w-4 h-4 mr-2 animate-pulse" /> Live Status
           </div>
@@ -393,161 +331,6 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-
-      {/* ── MODAL MODULATOR FORM ── */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
-            <div className="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                <Settings2 className="w-5 h-5 text-[var(--primary)]" />
-                Modulasi Manual Stok Darah
-              </h3>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <form onSubmit={handleSaveStock} className="p-6 space-y-5">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Cabang UDD
-                </label>
-                <select
-                  value={selectedRegionId}
-                  onChange={(e) => setSelectedRegionId(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none text-sm"
-                >
-                  {stats.regions.map((r) => (
-                    <option key={r.id} value={r.id}>
-                      {r.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Golongan Darah
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {BLOOD_TYPES.map((bt) => (
-                      <button
-                        key={bt}
-                        type="button"
-                        onClick={() =>
-                          setStockForm({ ...stockForm, bloodType: bt })
-                        }
-                        className="py-2 rounded-xl border text-sm font-bold transition-all"
-                        style={
-                          stockForm.bloodType === bt
-                            ? {
-                                backgroundColor: BLOOD_COLORS[bt].bg,
-                                color: BLOOD_COLORS[bt].text,
-                                borderColor: BLOOD_COLORS[bt].text,
-                              }
-                            : {
-                                backgroundColor: "#fff",
-                                color: "#9CA3AF",
-                                borderColor: "#E5E7EB",
-                              }
-                        }
-                      >
-                        {bt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                    Tipe Produk
-                  </label>
-                  <select
-                    value={stockForm.productType}
-                    onChange={(e) =>
-                      setStockForm({
-                        ...stockForm,
-                        productType: e.target.value,
-                      })
-                    }
-                    className="w-full px-3 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none text-sm"
-                  >
-                    {PRODUCT_TYPES.map((pt) => (
-                      <option key={pt.code} value={pt.code}>
-                        {pt.short} — {pt.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Pratinjau terpilih */}
-              <div
-                className="flex items-center gap-3 p-3 rounded-xl border"
-                style={{
-                  backgroundColor:
-                    BLOOD_COLORS[stockForm.bloodType as BloodType]?.bg,
-                  borderColor:
-                    BLOOD_COLORS[stockForm.bloodType as BloodType]?.border,
-                }}
-              >
-                <Droplet
-                  className="w-5 h-5"
-                  style={{
-                    color: BLOOD_COLORS[stockForm.bloodType as BloodType]?.text,
-                  }}
-                />
-                <div
-                  className="text-sm font-semibold"
-                  style={{
-                    color: BLOOD_COLORS[stockForm.bloodType as BloodType]?.text,
-                  }}
-                >
-                  Golongan {stockForm.bloodType} ·{" "}
-                  {
-                    PRODUCT_TYPES.find((p) => p.code === stockForm.productType)
-                      ?.label
-                  }
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                  Jumlah Kantong
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={stockForm.quantity}
-                  onChange={(e) =>
-                    setStockForm({
-                      ...stockForm,
-                      quantity: Number(e.target.value),
-                    })
-                  }
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-[var(--primary)] outline-none text-sm"
-                />
-              </div>
-
-              <div className="pt-4 border-t border-gray-100 flex justify-end gap-3">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Batal
-                </Button>
-                <Button type="submit" loading={savingStock}>
-                  Terapkan Pembaruan
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
