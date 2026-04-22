@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Droplet, ArrowDownCircle, CheckCircle, XCircle, Plus, X, Clock, MapPin, Activity } from 'lucide-react'
-import { getStockRequests, createStockRequest, approveStockRequest, rejectStockRequest } from '@/api/distribution'
+import { Droplet, ArrowDownCircle, Plus, X, Clock, MapPin, Activity } from 'lucide-react'
+import { getStockRequests, createStockRequest } from '@/api/distribution'
 import { regionService } from '@/api/region'
 import type { Region } from '@/types'
 
@@ -24,7 +24,6 @@ export default function DistributionPage() {
   const [requests, setRequests] = useState<any[]>([])
   const [regions, setRegions] = useState<Region[]>([])
   const [loading, setLoading] = useState(true)
-  const [processingId, setProcessingId] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('PENDING')
 
   // Form buat permintaan baru
@@ -48,22 +47,6 @@ export default function DistributionPage() {
 
   useEffect(() => { fetchAll() }, [filterStatus])
 
-  const handleApprove = async (id: string) => {
-    if (!confirm('Setujui permintaan ini? Stok UDD akan berkurang dan stok DC akan bertambah.')) return
-    setProcessingId(id)
-    try { await approveStockRequest(id); fetchAll() }
-    catch (e: any) { alert(e?.response?.data?.message || 'Gagal approve') }
-    finally { setProcessingId(null) }
-  }
-
-  const handleReject = async (id: string) => {
-    const notes = prompt('Alasan penolakan (opsional):') ?? undefined
-    setProcessingId(id)
-    try { await rejectStockRequest(id, notes); fetchAll() }
-    catch (e: any) { alert(e?.response?.data?.message || 'Gagal tolak') }
-    finally { setProcessingId(null) }
-  }
-
   const handleCreate = async () => {
     if (!form.regionId || form.quantity <= 0) return alert('Isi semua field dengan benar.')
     setSaving(true)
@@ -86,7 +69,7 @@ export default function DistributionPage() {
             Distribusi Stok Darah
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            Kelola permintaan pengambilan stok WB dari UDD → Distribution Center
+            Kelola permintaan pengambilan stok WB ke UDD. Menunggu persetujuan dari sisi UDD di menu Permintaan Darah.
           </p>
         </div>
         <div className="flex gap-2">
@@ -170,25 +153,7 @@ export default function DistributionPage() {
                     </div>
                   </div>
 
-                  {/* Aksi */}
-                  {r.status === 'PENDING' && (
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        disabled={processingId === r.id}
-                        onClick={() => handleReject(r.id)}
-                        className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 text-sm font-semibold transition-colors disabled:opacity-50"
-                      >
-                        <XCircle className="w-4 h-4" /> Tolak
-                      </button>
-                      <button
-                        disabled={processingId === r.id}
-                        onClick={() => handleApprove(r.id)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[var(--primary)] text-white hover:opacity-90 text-sm font-semibold transition-opacity disabled:opacity-50 shadow-sm"
-                      >
-                        <CheckCircle className="w-4 h-4" /> Approve
-                      </button>
-                    </div>
-                  )}
+                  {/* Aksi (Dihapus karena approval dipindah ke Permintaan Darah) */}
                   {r.status === 'APPROVED' && r.logs?.[0] && (
                     <div className="text-xs text-green-600 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200 shrink-0">
                       ✅ Disetujui oleh <strong>{r.logs[0].approvedBy}</strong><br />

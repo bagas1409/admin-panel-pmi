@@ -12,6 +12,7 @@ import DistributionPage from '@/pages/distribution/DistributionPage'
 import DistributionCenterPage from '@/pages/distribution/DistributionCenterPage'
 import DCStockPage from '@/pages/distribution/DCStockPage'
 import DCInventoryPage from '@/pages/distribution/DCInventoryPage'
+import BloodRequestsPage from '@/pages/bloodRequests/BloodRequestsPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, token, isLoading } = useAuth()
@@ -56,6 +57,7 @@ function App() {
                                 <Route path="/distribution-center" element={<DistributionCenterPage />} />
                                 <Route path="/distribution-center/stock" element={<DCStockPage />} />
                                 <Route path="/distribution-center/inventory" element={<DCInventoryPage />} />
+                                <Route path="/blood-requests" element={<BloodRequestsPage />} />
                             </Routes>
                         </MainLayout>
                     </ProtectedRoute>
