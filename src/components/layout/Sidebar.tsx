@@ -6,14 +6,20 @@ import {
   CalendarDays,
   RadioTower,
   Users,
+  UserCog,
+  ArrowDownCircle,
+  Package,
 } from "lucide-react";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard Matriks", icon: LayoutDashboard },
   { to: "/events", label: "Event Keliling", icon: CalendarDays },
   { to: "/regions", label: "Manajemen UDD", icon: MapPin },
+  { to: "/distribution", label: "Distribusi Stok Darah", icon: ArrowDownCircle },
+  { to: "/distribution-center", label: "Distribution Center", icon: Package },
   { to: "/broadcast", label: "Siaran Darurat", icon: RadioTower },
   { to: "/donors", label: "Relawan", icon: Users },
+  { to: "/users", label: "Pengguna", icon: UserCog },
 ];
 
 export default function Sidebar() {

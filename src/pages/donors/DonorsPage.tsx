@@ -9,9 +9,11 @@ import {
   Clock,
   Search,
   Users,
+  Activity,
 } from "lucide-react";
 import { donorService } from "@/api/donor";
 import type { User } from "@/types";
+import DonorinModal from "../users/DonorinModal";
 
 // ── Utility: Hitung hari sejak tanggal tertentu ─────────────────────────────
 const getDaysSince = (dateStr?: string): number | null => {
@@ -82,7 +84,6 @@ const dummyDonors: User[] = Array.from({ length: 10 }).map((_, i) => {
   date.setDate(date.getDate() - daysAgo);
 
   const bloodTypes: ("A" | "B" | "AB" | "O")[] = ["A", "B", "AB", "O"];
-  const rhesuses: ("POSITIVE" | "NEGATIVE")[] = ["POSITIVE", "NEGATIVE"];
   const names = [
     "Rindi Oktaviani",
     "Reda Sari",
@@ -106,7 +107,6 @@ const dummyDonors: User[] = Array.from({ length: 10 }).map((_, i) => {
       nik: `317${Math.floor(1000000000000 + Math.random() * 900000000000)}`,
       whatsappNumber: `0812${Math.floor(10000000 + Math.random() * 90000000)}`,
       bloodType: bloodTypes[i % 4],
-      rhesus: rhesuses[i % 2],
       totalDonations: Math.floor(Math.random() * 15) + 1,
       lastDonationDate: date.toISOString(),
     },
@@ -132,6 +132,9 @@ export default function DonorsPage() {
 
   // Modal Riwayat
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  // Modal Donorin
+  const [donorinUser, setDonorinUser] = useState<User | null>(null);
 
   const fetchDonors = async () => {
     setLoading(true);
@@ -301,12 +304,6 @@ export default function DonorsPage() {
               ) : (
                 paginatedDonors.map((d) => {
                   const status = getDonorStatus(d.donationHistories);
-                  const rhesus =
-                    d.donorProfile?.rhesus === "POSITIVE"
-                      ? "+"
-                      : d.donorProfile?.rhesus === "NEGATIVE"
-                        ? "-"
-                        : "";
                   const waNumber = d.donorProfile?.whatsappNumber
                     ?.replace(/^0/, "62")
                     .replace(/\D/g, "");
@@ -353,7 +350,6 @@ export default function DonorsPage() {
                           <span className="inline-flex items-center bg-red-50 text-[var(--primary)] px-3 py-1.5 rounded-xl text-sm font-bold border border-red-100">
                             <Droplets className="w-3.5 h-3.5 mr-1.5" />
                             {d.donorProfile.bloodType}
-                            {rhesus}
                           </span>
                         ) : (
                           <span className="text-gray-300 text-sm">-</span>
@@ -512,11 +508,6 @@ export default function DonorsPage() {
               <div>
                 <div className="text-xl font-bold text-[var(--text)]">
                   {selectedUser.donorProfile?.bloodType ?? "?"}
-                  {selectedUser.donorProfile?.rhesus === "POSITIVE"
-                    ? "+"
-                    : selectedUser.donorProfile?.rhesus === "NEGATIVE"
-                      ? "-"
-                      : ""}
                 </div>
                 <div className="text-xs text-gray-500 mt-0.5">Gol. Darah</div>
               </div>
@@ -549,6 +540,23 @@ export default function DonorsPage() {
                 </div>
                 <div className="text-xs text-gray-500 mt-0.5">Status</div>
               </div>
+            </div>
+
+            {/* ACTION: Donorin */}
+            <div className="px-6 py-4 border-b border-[var(--border)]">
+              <button
+                onClick={() => setDonorinUser(selectedUser)}
+                disabled={getDonorStatus(selectedUser.donationHistories).icon !== "ready"}
+                className="w-full py-2.5 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-sm font-bold rounded-xl transition-colors flex items-center justify-center gap-2 shadow-sm"
+              >
+                <Activity className="w-5 h-5" />
+                Daftarkan ke Markas / Event (Donorin)
+              </button>
+              {getDonorStatus(selectedUser.donationHistories).icon !== "ready" && (
+                <p className="text-xs text-center text-amber-600 mt-2 font-medium">
+                  Relawan ini belum memenuhi syarat pemulihan (60 hari).
+                </p>
+              )}
             </div>
 
             {/* TIMELINE */}
@@ -613,6 +621,17 @@ export default function DonorsPage() {
           </div>
         </div>
       )}
+
+      {/* Modal: Daftarkan (Donorin) relawan ke Event/UDD */}
+      <DonorinModal
+        isOpen={!!donorinUser}
+        user={donorinUser}
+        onClose={() => setDonorinUser(null)}
+        onSuccess={() => {
+            setDonorinUser(null);
+            fetchDonors();
+        }}
+      />
     </div>
   );
 }

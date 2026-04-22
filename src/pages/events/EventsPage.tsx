@@ -252,7 +252,7 @@ export default function EventsPage() {
                                                 <div>
                                                     <h4 className="font-bold text-gray-800 text-base">{p.fullName}</h4>
                                                     <div className="text-xs text-gray-500 flex items-center gap-3 mt-1">
-                                                        <span>Gol. Darah: <b className="text-red-600">{p.bloodType}{p.rhesus}</b></span>
+                                                        <span>Gol. Darah: <b className="text-red-600">{p.bloodType}</b></span>
                                                         <span>•</span>
                                                         <span>HP: {p.whatsappNumber}</span>
                                                     </div>

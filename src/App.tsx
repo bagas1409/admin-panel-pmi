@@ -5,8 +5,13 @@ import LoginPage from '@/pages/auth/LoginPage'
 import DashboardPage from '@/pages/dashboard/DashboardPage'
 import RegionsPage from '@/pages/regions/RegionsPage'
 import DonorsPage from '@/pages/donors/DonorsPage'
+import UsersPage from '@/pages/users/UsersPage'
 import EventsPage from '@/pages/events/EventsPage'
 import BroadcastPage from '@/pages/broadcast/BroadcastPage'
+import DistributionPage from '@/pages/distribution/DistributionPage'
+import DistributionCenterPage from '@/pages/distribution/DistributionCenterPage'
+import DCStockPage from '@/pages/distribution/DCStockPage'
+import DCInventoryPage from '@/pages/distribution/DCInventoryPage'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { user, token, isLoading } = useAuth()
@@ -44,8 +49,13 @@ function App() {
                                 <Route path="/dashboard" element={<DashboardPage />} />
                                 <Route path="/regions" element={<RegionsPage />} />
                                 <Route path="/donors" element={<DonorsPage />} />
+                                <Route path="/users" element={<UsersPage />} />
                                 <Route path="/events" element={<EventsPage />} />
                                 <Route path="/broadcast" element={<BroadcastPage />} />
+                                <Route path="/distribution" element={<DistributionPage />} />
+                                <Route path="/distribution-center" element={<DistributionCenterPage />} />
+                                <Route path="/distribution-center/stock" element={<DCStockPage />} />
+                                <Route path="/distribution-center/inventory" element={<DCInventoryPage />} />
                             </Routes>
                         </MainLayout>
                     </ProtectedRoute>

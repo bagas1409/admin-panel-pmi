@@ -5,10 +5,9 @@ import {
   Activity,
   Settings2,
   X,
-  ChevronDown,
-  ChevronUp,
+  Users,
+  Clock,
 } from "lucide-react";
-import { StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import api from "@/api/axios";
 import type { Region } from "@/types";
@@ -35,6 +34,12 @@ const BLOOD_COLORS: Record<
   AB: { bg: "#FAF5FF", text: "#7C3AED", border: "#DDD6FE" },
 };
 
+const SOURCE_LABELS: Record<string, string> = {
+  EVENT: 'Event Keliling',
+  UDD: 'Markas UDD',
+  MANUAL: 'Manual'
+};
+
 interface BloodStock {
   id: string;
   bloodType: BloodType;
@@ -47,13 +52,37 @@ interface RegionWithStock extends Region {
   bloodStocks: BloodStock[];
 }
 
+interface DonorFeedItem {
+  id: string;
+  name: string;
+  bloodType: string | null;
+  date: string;
+  sourceType: string;
+  locationName: string;
+  regionName?: string | null;
+  regionCode?: string | null;
+}
+
+interface RegionSummary {
+  id: string;
+  kodeUdd: string;
+  name: string;
+  address: string | null;
+  totalWB: number;
+  byBloodType: Record<string, number>;
+  recentDonors: DonorFeedItem[];
+}
+
 interface DashboardStats {
   totalA: number;
   totalB: number;
   totalAB: number;
   totalO: number;
+  totalWB: number;
   totalRegions: number;
-  regions: RegionWithStock[];
+  regions: RegionSummary[];
+  globalDonorFeed: DonorFeedItem[];
+  regionsRaw: RegionWithStock[];
 }
 
 export default function DashboardPage() {
@@ -62,18 +91,16 @@ export default function DashboardPage() {
     totalB: 0,
     totalAB: 0,
     totalO: 0,
+    totalWB: 0,
     totalRegions: 0,
     regions: [],
+    globalDonorFeed: [],
+    regionsRaw: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Expanded rows (per region detail per bloodtype)
-  const [expandedRegions, setExpandedRegions] = useState<Set<string>>(
-    new Set(),
-  );
-
-  // Form Modal
+  // Form Modal (manual upsert — deprecated, dibiarkan sementara)
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRegionId, setSelectedRegionId] = useState<string>("");
   const [savingStock, setSavingStock] = useState(false);
@@ -87,39 +114,34 @@ export default function DashboardPage() {
     setLoading(true);
     setError(null);
     try {
-      const { data } = await api.get("/blood-stocks");
-      const regionsData: RegionWithStock[] = data.data;
+      // Ambil ringkasan realtime dari endpoint baru
+      const { data: summaryRes } = await api.get("/blood-stocks/summary");
+      const summary = summaryRes.data;
 
-      let countA = 0,
-        countB = 0,
-        countAB = 0,
-        countO = 0;
-      regionsData.forEach((region) => {
-        region.bloodStocks.forEach((stock) => {
-          if (stock.bloodType === "A") countA += stock.quantity;
-          if (stock.bloodType === "B") countB += stock.quantity;
-          if (stock.bloodType === "AB") countAB += stock.quantity;
-          if (stock.bloodType === "O") countO += stock.quantity;
-        });
-      });
+      // Juga ambil matriks lengkap untuk tabel detail produk (PRC/TC/FFP)
+      const { data: matriksRes } = await api.get("/blood-stocks");
+      const regionsRaw: RegionWithStock[] = matriksRes.data;
 
-      if (regionsData.length > 0 && !selectedRegionId) {
-        setSelectedRegionId(regionsData[0].id);
+      if (summary.regions.length > 0 && !selectedRegionId) {
+        setSelectedRegionId(summary.regions[0].id);
       }
 
       setStats({
-        totalA: countA,
-        totalB: countB,
-        totalAB: countAB,
-        totalO: countO,
-        totalRegions: regionsData.length,
-        regions: regionsData,
+        totalA: summary.byBloodType.A || 0,
+        totalB: summary.byBloodType.B || 0,
+        totalAB: summary.byBloodType.AB || 0,
+        totalO: summary.byBloodType.O || 0,
+        totalWB: summary.totalWB || 0,
+        totalRegions: summary.totalRegions || 0,
+        regions: summary.regions || [],
+        globalDonorFeed: summary.globalDonorFeed || [],
+        regionsRaw,
       });
     } catch (err: any) {
       console.error(err);
       setError(
         err?.response?.data?.message ||
-          "Gagal memuat matriks persediaan darah UI.",
+          "Gagal memuat matriks persediaan darah.",
       );
     } finally {
       setLoading(false);
@@ -128,6 +150,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
+    // Auto-refresh setiap 60 detik
+    const interval = setInterval(fetchDashboardData, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSaveStock = async (e: FormEvent) => {
@@ -151,32 +176,10 @@ export default function DashboardPage() {
     }
   };
 
-  const toggleRegion = (id: string) => {
-    setExpandedRegions((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  // Helper tidak lagi digunakan — reserved jika modal matriks kembali diperlukan
+  // const toggleRegion = ...
+  // (helper getStockMatrix dihapus — tidak lagi digunakan setelah refactor ke summary endpoint)
 
-  // Helper: Hitung qty per golongan & per tipe produk untuk satu region
-  const getStockMatrix = (stocks: BloodStock[]) => {
-    // { A: { WB: 12, PRC: 5, ... }, B: {...}, ... }
-    const matrix: Record<string, Record<string, number>> = {};
-    for (const bt of BLOOD_TYPES) {
-      matrix[bt] = {};
-      for (const pt of PRODUCT_TYPES) {
-        matrix[bt][pt.code] = 0;
-      }
-    }
-    stocks.forEach((s) => {
-      if (matrix[s.bloodType]) {
-        matrix[s.bloodType][s.productType] =
-          (matrix[s.bloodType][s.productType] || 0) + s.quantity;
-      }
-    });
-    return matrix;
-  };
 
   return (
     <div className="space-y-8 relative">
@@ -254,205 +257,139 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* ── TABEL DETAIL per CABANG ── */}
+      {/* ── STOK WB PER CABANG (dari summary endpoint) ── */}
       <div className="bg-[var(--card-bg)] rounded-2xl shadow-sm border border-[var(--border)] overflow-hidden">
         <div className="px-6 py-5 border-b border-[var(--border)] flex gap-2 items-center justify-between">
           <div className="flex items-center gap-2">
             <MapPin className="text-[var(--primary)] w-5 h-5" />
-            <h3 className="text-lg font-bold text-[var(--text)]">
-              Sebaran Stok per Cabang UDD
-            </h3>
+            <h3 className="text-lg font-bold text-[var(--text)]">Stok WB per Cabang UDD</h3>
           </div>
-          <p className="text-xs text-[var(--text-muted)]">
-            Ketuk baris untuk melihat rincian tipe produk
-          </p>
+          <span className="text-xs text-[var(--text-muted)]">Auto-update saat donor divalidasi</span>
         </div>
-
         {loading ? (
-          <div className="p-10 text-center text-[var(--text-muted)] animate-pulse">
-            Memuat matriks darah...
-          </div>
+          <div className="p-10 text-center text-[var(--text-muted)] animate-pulse">Memuat data...</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-gray-50 border-b border-[var(--border)]">
-                  <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider w-64">
-                    Cabang UDD
-                  </th>
-                  {BLOOD_TYPES.map((bt) => (
-                    <th
-                      key={bt}
-                      className="px-4 py-3 text-xs font-bold text-center uppercase"
-                      style={{ color: BLOOD_COLORS[bt].text }}
-                    >
-                      Gol {bt}
+                  <th className="px-6 py-3 text-xs font-bold text-gray-500 uppercase tracking-wider">Cabang UDD</th>
+                  {BLOOD_TYPES.map(bt => (
+                    <th key={bt} className="px-4 py-3 text-xs font-bold text-center uppercase" style={{ color: BLOOD_COLORS[bt].text }}>
+                      WB-{bt}
                     </th>
                   ))}
-                  <th className="px-4 py-3 text-xs font-bold text-gray-400 text-center uppercase">
-                    Detail
-                  </th>
+                  <th className="px-4 py-3 text-xs font-bold text-center text-gray-400 uppercase">Total WB</th>
+                  <th className="px-4 py-3 text-xs font-bold text-gray-400 uppercase">Donor Terakhir</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.regions.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-8 text-center text-gray-500"
-                    >
-                      Belum ada pasokan darah terdaftar.
-                    </td>
-                  </tr>
-                ) : (
-                  stats.regions.map((region) => {
-                    const matrix = getStockMatrix(region.bloodStocks);
-                    const isExpanded = expandedRegions.has(region.id);
-                    // Hitung total per golongan darah
-                    const totals: Record<string, number> = {};
-                    for (const bt of BLOOD_TYPES) {
-                      totals[bt] = Object.values(matrix[bt]).reduce(
-                        (a, b) => a + b,
-                        0,
-                      );
-                    }
-
-                    return (
-                      <>
-                        {/* Baris Ringkasan */}
-                        <tr
-                          key={region.id}
-                          className="hover:bg-gray-50 transition-colors cursor-pointer border-b border-[var(--border)]"
-                          onClick={() => toggleRegion(region.id)}
-                        >
-                          <td className="px-6 py-4">
-                            <div className="font-semibold text-gray-900 text-sm">
-                              {region.name}
-                            </div>
-                            <div className="text-xs text-gray-400 line-clamp-1">
-                              {region.address}
-                            </div>
+                  <tr><td colSpan={7} className="px-6 py-8 text-center text-gray-500">Belum ada data stok.</td></tr>
+                ) : stats.regions.map(region => {
+                  const lastDonor = region.recentDonors?.[0];
+                  return (
+                    <tr key={region.id} className="hover:bg-gray-50 border-b border-[var(--border)] transition-colors">
+                      <td className="px-6 py-4">
+                        <div className="font-semibold text-gray-900 text-sm">{region.name}</div>
+                        <div className="text-xs text-gray-400">{region.kodeUdd}</div>
+                      </td>
+                      {BLOOD_TYPES.map(bt => {
+                        const qty = region.byBloodType?.[bt] || 0;
+                        const c = BLOOD_COLORS[bt];
+                        return (
+                          <td key={bt} className="px-4 py-4 text-center">
+                            <span className="inline-block min-w-[2.5rem] px-2 py-1 rounded-lg text-sm font-bold"
+                              style={{ backgroundColor: qty > 0 ? c.bg : '#F9FAFB', color: qty > 0 ? c.text : '#9CA3AF', border: `1px solid ${qty > 0 ? c.border : '#E5E7EB'}` }}>
+                              {qty}
+                            </span>
                           </td>
-                          {BLOOD_TYPES.map((bt) => {
-                            const total = totals[bt];
-                            const c = BLOOD_COLORS[bt];
-                            return (
-                              <td key={bt} className="px-4 py-4 text-center">
-                                <span
-                                  className="inline-block min-w-[2.5rem] px-2 py-1 rounded-lg text-sm font-bold"
-                                  style={{
-                                    backgroundColor:
-                                      total > 0 ? c.bg : "#F9FAFB",
-                                    color: total > 0 ? c.text : "#9CA3AF",
-                                    border: `1px solid ${total > 0 ? c.border : "#E5E7EB"}`,
-                                  }}
-                                >
-                                  {total}
+                        );
+                      })}
+                      <td className="px-4 py-4 text-center">
+                        <span className="font-bold text-gray-700">{region.totalWB}</span>
+                        <span className="text-xs text-gray-400 ml-1">Kantong</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {lastDonor ? (
+                          <div>
+                            <div className="text-sm font-semibold text-gray-800">{lastDonor.name}</div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              {lastDonor.bloodType && (
+                                <span className="text-xs font-bold px-1.5 py-0.5 rounded" style={{ backgroundColor: BLOOD_COLORS[lastDonor.bloodType as BloodType]?.bg || '#F9FAFB', color: BLOOD_COLORS[lastDonor.bloodType as BloodType]?.text || '#6B7280' }}>
+                                  {lastDonor.bloodType}
                                 </span>
-                              </td>
-                            );
-                          })}
-                          <td className="px-4 py-4 text-center text-gray-400">
-                            {isExpanded ? (
-                              <ChevronUp className="w-4 h-4 mx-auto" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4 mx-auto" />
-                            )}
-                          </td>
-                        </tr>
-
-                        {/* Baris Detail per Tipe Produk (jika expanded) */}
-                        {isExpanded && (
-                          <tr
-                            key={`${region.id}-detail`}
-                            className="bg-gray-50/70 border-b border-[var(--border)]"
-                          >
-                            <td className="px-6 py-4" colSpan={6}>
-                              <div className="text-xs font-bold text-gray-500 uppercase mb-3 tracking-wider">
-                                Rincian per Tipe Produk
-                              </div>
-                              <div className="overflow-x-auto">
-                                <table className="w-full text-sm">
-                                  <thead>
-                                    <tr>
-                                      <th className="text-left text-xs text-gray-400 font-semibold pb-2 w-48">
-                                        Tipe Produk
-                                      </th>
-                                      {BLOOD_TYPES.map((bt) => (
-                                        <th
-                                          key={bt}
-                                          className="text-center text-xs font-bold pb-2 w-20"
-                                          style={{
-                                            color: BLOOD_COLORS[bt].text,
-                                          }}
-                                        >
-                                          Gol {bt}
-                                        </th>
-                                      ))}
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-gray-100">
-                                    {PRODUCT_TYPES.map((pt) => {
-                                      const rowTotal = BLOOD_TYPES.reduce(
-                                        (sum, bt) =>
-                                          sum + (matrix[bt][pt.code] || 0),
-                                        0,
-                                      );
-                                      // Sembunyikan baris jika semua 0
-                                      if (rowTotal === 0) return null;
-                                      return (
-                                        <tr key={pt.code}>
-                                          <td className="py-2 pr-4">
-                                            <span className="font-mono font-bold text-gray-700 text-xs bg-white border border-gray-200 px-2 py-0.5 rounded">
-                                              {pt.short}
-                                            </span>
-                                            <span className="text-gray-400 text-xs ml-2">
-                                              {pt.label}
-                                            </span>
-                                          </td>
-                                          {BLOOD_TYPES.map((bt) => {
-                                            const qty =
-                                              matrix[bt][pt.code] || 0;
-                                            const c = BLOOD_COLORS[bt];
-                                            return (
-                                              <td
-                                                key={bt}
-                                                className="py-2 text-center"
-                                              >
-                                                {qty > 0 ? (
-                                                  <span
-                                                    className="inline-block px-2 py-0.5 rounded text-xs font-bold"
-                                                    style={{
-                                                      backgroundColor: c.bg,
-                                                      color: c.text,
-                                                      border: `1px solid ${c.border}`,
-                                                    }}
-                                                  >
-                                                    {qty} Kt
-                                                  </span>
-                                                ) : (
-                                                  <span className="text-gray-300 text-xs">
-                                                    —
-                                                  </span>
-                                                )}
-                                              </td>
-                                            );
-                                          })}
-                                        </tr>
-                                      );
-                                    })}
-                                  </tbody>
-                                </table>
-                              </div>
-                            </td>
-                          </tr>
+                              )}
+                              <span className="text-xs text-gray-400">
+                                {new Date(lastDonor.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+                              </span>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400 italic">Belum ada donasi</span>
                         )}
-                      </>
-                    );
-                  })
-                )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
+          </div>
+        )}
+      </div>
+
+      {/* ── FEED DONOR GLOBAL REALTIME ── */}
+      <div className="bg-[var(--card-bg)] rounded-2xl shadow-sm border border-[var(--border)] overflow-hidden">
+        <div className="px-6 py-5 border-b border-[var(--border)] flex items-center gap-2">
+          <Activity className="text-green-500 w-5 h-5 animate-pulse" />
+          <h3 className="text-lg font-bold text-[var(--text)]">Feed Donor Realtime</h3>
+          <span className="ml-auto text-xs text-[var(--text-muted)]">20 donasi terbaru dari semua UDD</span>
+        </div>
+        {loading ? (
+          <div className="p-8 text-center text-[var(--text-muted)] animate-pulse">Memuat feed...</div>
+        ) : stats.globalDonorFeed.length === 0 ? (
+          <div className="p-8 text-center text-gray-400">
+            <Users className="w-8 h-8 mx-auto mb-2 opacity-30" />
+            <p className="text-sm">Belum ada data donor yang tercatat dari event atau UDD.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-[var(--border)]">
+            {stats.globalDonorFeed.map((item, idx) => {
+              const c = item.bloodType ? BLOOD_COLORS[item.bloodType as BloodType] : null;
+              return (
+                <div key={item.id || idx} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+                  {/* Badge golongan darah */}
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
+                    style={{ backgroundColor: c?.bg || '#F9FAFB', color: c?.text || '#6B7280', border: `1px solid ${c?.border || '#E5E7EB'}` }}>
+                    {item.bloodType || '?'}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm text-gray-900 truncate">{item.name}</div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        item.sourceType === 'EVENT' ? 'bg-blue-50 text-blue-600' :
+                        item.sourceType === 'UDD' ? 'bg-green-50 text-green-700' :
+                        'bg-gray-100 text-gray-500'
+                      }`}>
+                        {SOURCE_LABELS[item.sourceType] || item.sourceType}
+                      </span>
+                      {item.regionName && (
+                        <span className="text-xs text-gray-500 truncate">{item.regionName}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-xs font-medium text-gray-500">
+                      <Clock className="w-3 h-3 inline mr-1" />
+                      {new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                    </div>
+                    <div className="text-xs text-gray-400">
+                      {new Date(item.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

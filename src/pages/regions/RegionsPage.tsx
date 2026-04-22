@@ -1,8 +1,20 @@
 import { useEffect, useState, FormEvent } from 'react'
-import { MapPin, Plus, Edit2, Trash2, X, Users, CheckCircle, XCircle } from 'lucide-react'
+import { MapPin, Plus, Edit2, Trash2, X, Users, CheckCircle, XCircle, Droplet, Activity } from 'lucide-react'
 import { regionService } from '@/api/region'
+import api from '@/api/axios'
 import type { Region } from '@/types'
 import { Button } from '@/components/ui/Button'
+
+const BLOOD_TYPES = ['A', 'B', 'O', 'AB'] as const
+type BloodType = typeof BLOOD_TYPES[number]
+const BLOOD_COLORS: Record<BloodType, { bg: string; text: string; border: string }> = {
+  A:  { bg: '#FEF2F2', text: '#DC2626', border: '#FECACA' },
+  B:  { bg: '#EFF6FF', text: '#2563EB', border: '#BFDBFE' },
+  O:  { bg: '#F0FDF4', text: '#16A34A', border: '#BBF7D0' },
+  AB: { bg: '#FAF5FF', text: '#7C3AED', border: '#DDD6FE' },
+}
+
+const SOURCE_LABELS: Record<string, string> = { EVENT: 'Event', UDD: 'Markas', MANUAL: 'Manual' }
 
 export default function RegionsPage() {
     const [regions, setRegions] = useState<Region[]>([])
@@ -17,9 +29,14 @@ export default function RegionsPage() {
     // Participant Modal State
     const [isParticipantsModalOpen, setIsParticipantsModalOpen] = useState(false)
     const [selectedRegionId, setSelectedRegionId] = useState<string | null>(null)
+    const [selectedRegionName, setSelectedRegionName] = useState<string>('')
     const [participants, setParticipants] = useState<any[]>([])
     const [loadingParticipants, setLoadingParticipants] = useState(false)
     const [verifyingId, setVerifyingId] = useState<string | null>(null)
+
+    // Stock & donor feed per region
+    const [regionStock, setRegionStock] = useState<{ byBloodType: Record<string, number>; recentDonors: any[] } | null>(null)
+    const [loadingStock, setLoadingStock] = useState(false)
 
     const fetchRegions = async () => {
         setLoading(true)
@@ -59,16 +76,35 @@ export default function RegionsPage() {
     }
 
     const openParticipantsModal = async (regionId: string) => {
+        const region = regions.find(r => r.id === regionId)
         setSelectedRegionId(regionId)
+        setSelectedRegionName(region?.name || '')
         setIsParticipantsModalOpen(true)
         setLoadingParticipants(true)
+        setRegionStock(null)
         try {
-            const data = await regionService.getRegistrants(regionId)
-            setParticipants(data)
+            const [participantsData] = await Promise.all([
+                regionService.getRegistrants(regionId)
+            ])
+            setParticipants(participantsData)
         } catch (err: any) {
             alert('Gagal memuat peserta')
         } finally {
             setLoadingParticipants(false)
+        }
+
+        // Fetch stok darah region dari summary
+        setLoadingStock(true)
+        try {
+            const { data: summaryRes } = await api.get('/blood-stocks/summary')
+            const found = summaryRes.data?.regions?.find((r: any) => r.id === regionId)
+            if (found) {
+                setRegionStock({ byBloodType: found.byBloodType || {}, recentDonors: found.recentDonors || [] })
+            }
+        } catch {
+            // silently fail — stok tidak kritikal
+        } finally {
+            setLoadingStock(false)
         }
     }
 
@@ -255,12 +291,67 @@ export default function RegionsPage() {
                             <div>
                                 <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                                     <Users className="w-5 h-5 text-emerald-600" />
-                                    Antrean Harian Markas (UDD)
+                                    Antrean Harian — {selectedRegionName}
                                 </h2>
                                 <p className="text-xs text-gray-500 mt-1">Verifikasi relawan yang walk-in / mendaftar untuk donor hari ini.</p>
                             </div>
                             <button onClick={() => setIsParticipantsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5"/></button>
                         </div>
+
+                        {/* ── Info Stok WB + Donor Terbaru ── */}
+                        <div className="px-6 py-4 border-b border-[var(--border)] bg-white">
+                            <div className="flex items-center gap-2 mb-3">
+                                <Droplet className="w-4 h-4 text-red-500" />
+                                <span className="text-sm font-bold text-gray-700">Stok WB Saat Ini</span>
+                                {loadingStock && <span className="text-xs text-gray-400 animate-pulse ml-1">Memuat...</span>}
+                            </div>
+                            {regionStock ? (
+                                <div className="flex flex-wrap gap-2 mb-4">
+                                    {BLOOD_TYPES.map(bt => {
+                                        const qty = regionStock.byBloodType[bt] || 0
+                                        const c = BLOOD_COLORS[bt]
+                                        return (
+                                            <div key={bt} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-sm font-bold"
+                                                style={{ backgroundColor: c.bg, borderColor: c.border, color: c.text }}>
+                                                <span>{bt}</span>
+                                                <span className="text-xs font-normal opacity-70">WB</span>
+                                                <span className="ml-1 bg-white/70 px-1.5 py-0.5 rounded text-xs">{qty}</span>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            ) : !loadingStock ? (
+                                <p className="text-xs text-gray-400 italic mb-3">Data stok belum tersedia</p>
+                            ) : <div className="h-8 mb-3" />}
+
+                            {/* Donor Terbaru */}
+                            {regionStock && regionStock.recentDonors.length > 0 && (
+                                <div>
+                                    <div className="flex items-center gap-1.5 mb-2">
+                                        <Activity className="w-3.5 h-3.5 text-green-500" />
+                                        <span className="text-xs font-bold text-gray-600">5 Donor Terakhir</span>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {regionStock.recentDonors.slice(0, 5).map((d: any, i: number) => {
+                                            const c = d.bloodType ? BLOOD_COLORS[d.bloodType as BloodType] : null
+                                            return (
+                                                <div key={i} className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs">
+                                                    {c && (
+                                                        <span className="font-bold text-xs px-1 rounded" style={{ backgroundColor: c.bg, color: c.text }}>{d.bloodType}</span>
+                                                    )}
+                                                    <span className="font-semibold text-gray-700 max-w-[90px] truncate">{d.name}</span>
+                                                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-medium ${
+                                                        d.sourceType === 'EVENT' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-700'
+                                                    }`}>{SOURCE_LABELS[d.sourceType] || d.sourceType}</span>
+                                                    <span className="text-gray-400">{new Date(d.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</span>
+                                                </div>
+                                            )
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="p-6 flex-1 overflow-y-auto bg-gray-50">
                             {loadingParticipants ? (
                                 <div className="text-center py-10 animate-pulse text-gray-400 font-medium">Memuat antrean...</div>
@@ -279,7 +370,7 @@ export default function RegionsPage() {
                                             <div key={p.id} className="bg-white border border-[var(--border)] rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow transition-shadow">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center font-bold text-red-700 text-sm">
-                                                        {profile?.bloodType || '?'}{profile?.rhesus === 'POSITIVE' ? '+' : '-'}
+                                                        {profile?.bloodType || '?'}
                                                     </div>
                                                     <div>
                                                         <h3 className="font-bold text-gray-900 leading-none mb-1">{profile?.fullName}</h3>
