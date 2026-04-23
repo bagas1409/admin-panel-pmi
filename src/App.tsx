@@ -14,7 +14,7 @@ import DCStockPage from '@/pages/distribution/DCStockPage'
 import DCInventoryPage from '@/pages/distribution/DCInventoryPage'
 import BloodRequestsPage from '@/pages/bloodRequests/BloodRequestsPage'
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
     const { user, token, isLoading } = useAuth()
 
     if (isLoading) {
@@ -29,8 +29,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
         return <Navigate to="/login" replace />
     }
 
-    if (user.role !== 'ADMIN_PMI') {
-        return <Navigate to="/login" replace />
+    // Redirect login user based on their specific role to avoid 'stuck on white screen' problem 
+    if (!allowedRoles.includes(user.role)) {
+        if (user.role === 'ADMIN_DISTRIBUSI') return <Navigate to="/distribution" replace />
+        return <Navigate to="/dashboard" replace />
     }
 
     return <>{children}</>
@@ -43,24 +45,73 @@ function App() {
             <Route
                 path="/*"
                 element={
-                    <ProtectedRoute>
-                        <MainLayout>
-                            <Routes>
-                                <Route path="/" element={<DashboardPage />} />
-                                <Route path="/dashboard" element={<DashboardPage />} />
-                                <Route path="/regions" element={<RegionsPage />} />
-                                <Route path="/donors" element={<DonorsPage />} />
-                                <Route path="/users" element={<UsersPage />} />
-                                <Route path="/events" element={<EventsPage />} />
-                                <Route path="/broadcast" element={<BroadcastPage />} />
-                                <Route path="/distribution" element={<DistributionPage />} />
-                                <Route path="/distribution-center" element={<DistributionCenterPage />} />
-                                <Route path="/distribution-center/stock" element={<DCStockPage />} />
-                                <Route path="/distribution-center/inventory" element={<DCInventoryPage />} />
-                                <Route path="/blood-requests" element={<BloodRequestsPage />} />
-                            </Routes>
-                        </MainLayout>
-                    </ProtectedRoute>
+                    <MainLayout>
+                        <Routes>
+                            {/* RUTE UNTUK ADMIN PMI SAJA */}
+                            <Route path="/" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <DashboardPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/dashboard" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <DashboardPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/regions" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <RegionsPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/donors" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <DonorsPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/users" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <UsersPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/events" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <EventsPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/broadcast" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <BroadcastPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/blood-requests" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <BloodRequestsPage />
+                                </ProtectedRoute>
+                            } />
+
+                            {/* RUTE UNTUK ADMIN DISTRIBUSI SAJA */}
+                            <Route path="/distribution" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_DISTRIBUSI']}>
+                                    <DistributionPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/distribution-center" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_DISTRIBUSI']}>
+                                    <DistributionCenterPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/distribution-center/stock" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_DISTRIBUSI']}>
+                                    <DCStockPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/distribution-center/inventory" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_DISTRIBUSI']}>
+                                    <DCInventoryPage />
+                                </ProtectedRoute>
+                            } />
+                        </Routes>
+                    </MainLayout>
                 }
             />
         </Routes>

@@ -4,18 +4,23 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { userService } from '@/api/user'
 import type { User } from '@/types'
-import { Search, Ban, CheckCircle, Eye, UserPlus, Droplets } from 'lucide-react'
+import { Search, Eye, UserPlus, Droplets, Pencil, Trash2 } from 'lucide-react'
 import UserDetailDrawer from './UserDetailDrawer'
 import AddDonorModal from './AddDonorModal'
 import DonorinModal from './DonorinModal'
+import EditUserModal from './EditUserModal'
 
 export default function UsersPage() {
     const [users, setUsers] = useState<User[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [search, setSearch] = useState('')
-    const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'BANNED'>('ALL')
+    const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'INCOMPLETE'>('ALL')
     const [actionLoading, setActionLoading] = useState<string | null>(null)
+
+    // State Paginasi
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 10
 
     // State untuk drawer detail
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
@@ -25,6 +30,9 @@ export default function UsersPage() {
 
     // State untuk Donorin Modal
     const [donorinUser, setDonorinUser] = useState<User | null>(null)
+
+    // State untuk Edit Modal
+    const [editUser, setEditUser] = useState<User | null>(null)
 
     const fetchUsers = async () => {
         setLoading(true)
@@ -44,27 +52,15 @@ export default function UsersPage() {
         fetchUsers()
     }, [])
 
-    const handleBan = async (id: string) => {
-        if (!confirm('Yakin ingin menonaktifkan akun pendonor ini?')) return
-        setActionLoading(id)
+    const handleDelete = async (user: User) => {
+        const name = user.donorProfile?.fullName || user.email || 'pendonor ini'
+        if (!confirm(`Hapus akun "${name}" secara permanen? Seluruh data dan riwayat donasi akan hilang.\nAksi ini tidak dapat dibatalkan!`)) return
+        setActionLoading(user.id)
         try {
-            await userService.ban(id)
+            await userService.delete(user.id)
             await fetchUsers()
-        } catch {
-            alert('Gagal menonaktifkan akun.')
-        } finally {
-            setActionLoading(null)
-        }
-    }
-
-    const handleUnban = async (id: string) => {
-        if (!confirm('Yakin ingin mengaktifkan kembali akun ini?')) return
-        setActionLoading(id)
-        try {
-            await userService.unban(id)
-            await fetchUsers()
-        } catch {
-            alert('Gagal mengaktifkan akun.')
+        } catch (e: any) {
+            alert(e?.response?.data?.message || 'Gagal menghapus akun.')
         } finally {
             setActionLoading(null)
         }
@@ -78,11 +74,22 @@ export default function UsersPage() {
 
         const matchesFilter =
             filter === 'ALL' ||
-            (filter === 'BANNED' && !user.isActive) ||
+            (filter === 'INCOMPLETE' && !user.donorProfile?.gender) ||
             (filter === 'ACTIVE' && user.isActive)
 
         return matchesSearch && matchesFilter
     })
+
+    // Reset halaman ke-1 jika melakukan pencarian
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, filter])
+
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+    const paginatedUsers = filteredUsers.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    )
 
     const bloodBadge: Record<string, string> = {
         A: 'bg-red-100 text-red-700',
@@ -122,7 +129,7 @@ export default function UsersPage() {
 
                     {/* Status Filter */}
                     <div className="flex gap-2">
-                        {(['ALL', 'ACTIVE', 'BANNED'] as const).map((status) => (
+                        {(['ALL', 'ACTIVE', 'INCOMPLETE'] as const).map((status) => (
                             <button
                                 key={status}
                                 onClick={() => setFilter(status)}
@@ -131,7 +138,7 @@ export default function UsersPage() {
                                     : 'bg-[var(--background)] text-[var(--text-muted)] hover:text-[var(--text)]'
                                     }`}
                             >
-                                {status === 'ALL' ? 'Semua' : status === 'ACTIVE' ? 'Aktif' : 'Dinonaktifkan'}
+                                {status === 'ALL' ? 'Semua' : status === 'ACTIVE' ? 'Aktif' : 'Belum Lengkap'}
                             </button>
                         ))}
                     </div>
@@ -178,7 +185,7 @@ export default function UsersPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border)]">
-                                {filteredUsers.map((user) => (
+                                {paginatedUsers.map((user) => (
                                     <tr
                                         key={user.id}
                                         className="hover:bg-[var(--background)]/50 transition-colors"
@@ -230,35 +237,52 @@ export default function UsersPage() {
                                                 >
                                                     <Eye className="w-4 h-4" />
                                                 </Button>
-                                                {user.isActive ? (
-                                                    <Button
-                                                        variant="danger"
-                                                        size="sm"
-                                                        onClick={() => handleBan(user.id)}
-                                                        disabled={actionLoading === user.id}
-                                                        loading={actionLoading === user.id}
-                                                    >
-                                                        <Ban className="w-4 h-4" />
-                                                        Ban
-                                                    </Button>
-                                                ) : (
-                                                    <Button
-                                                        variant="secondary"
-                                                        size="sm"
-                                                        onClick={() => handleUnban(user.id)}
-                                                        disabled={actionLoading === user.id}
-                                                        loading={actionLoading === user.id}
-                                                    >
-                                                        <CheckCircle className="w-4 h-4" />
-                                                        Aktifkan
-                                                    </Button>
-                                                )}
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={() => setEditUser(user)}
+                                                    title="Edit biodata"
+                                                >
+                                                    <Pencil className="w-4 h-4" /> Edit
+                                                </Button>
+                                                <Button
+                                                    variant="danger"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(user)}
+                                                    disabled={actionLoading === user.id}
+                                                    loading={actionLoading === user.id}
+                                                    title="Hapus akun permanen"
+                                                >
+                                                    <Trash2 className="w-4 h-4" /> Hapus
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                    {/* Pagination Footer */}
+                    <div className="px-6 py-4 border-t border-[var(--border)] bg-gray-50 flex items-center justify-between">
+                        <span className="text-sm text-gray-500">
+                            Menampilkan {Math.min((currentPage - 1) * itemsPerPage + 1, filteredUsers.length)} - {Math.min(currentPage * itemsPerPage, filteredUsers.length)} dari {filteredUsers.length} pengguna
+                        </span>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1.5 border border-[var(--border)] bg-white text-gray-600 font-medium text-sm rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Sebelumnya
+                            </button>
+                            <button
+                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                className="px-3 py-1.5 border border-[var(--border)] bg-white text-gray-600 font-medium text-sm rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Berikutnya
+                            </button>
+                        </div>
                     </div>
                 </Card>
             )}
@@ -282,13 +306,17 @@ export default function UsersPage() {
                 isOpen={!!donorinUser}
                 user={donorinUser}
                 onClose={() => setDonorinUser(null)}
-                // Kita tidak perlu menutup drawe user-nya saat sukses, mungkin refresh data detailnya?
-                // Sementara cukup tutup DonorinModal.
                 onSuccess={() => {
                     setDonorinUser(null)
-                    // Refresh current global users list
                     fetchUsers()
                 }}
+            />
+
+            {/* Modal: Edit Biodata Pendonor */}
+            <EditUserModal
+                user={editUser}
+                onClose={() => setEditUser(null)}
+                onSuccess={fetchUsers}
             />
         </div>
     )

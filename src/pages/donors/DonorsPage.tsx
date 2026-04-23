@@ -70,55 +70,7 @@ const getDonorStatus = (histories?: { donationDate: string }[]) => {
   };
 };
 
-// ── Dummy Data: 10 Relawan Palsu ──────────────────────────────────────────────
-const dummyDonors: User[] = Array.from({ length: 10 }).map((_, i) => {
-  // Bangkitkan rentang waktu secara acak untuk memunculkan 3 kombinasi status
-  let daysAgo = 0;
-  if (i % 3 === 0)
-    daysAgo = Math.floor(Math.random() * 20) + 1; // 1-20 hari -> Masa Pemulihan
-  else if (i % 3 === 1)
-    daysAgo = Math.floor(Math.random() * 50) + 31; // 31-80 hari -> Hampir Siap
-  else daysAgo = Math.floor(Math.random() * 100) + 91; // 91+ hari -> Siap Donor Ulang
-
-  const date = new Date();
-  date.setDate(date.getDate() - daysAgo);
-
-  const bloodTypes: ("A" | "B" | "AB" | "O")[] = ["A", "B", "AB", "O"];
-  const names = [
-    "Rindi Oktaviani",
-    "Reda Sari",
-    "Habib Rehan",
-    "Adeng Robikurnia",
-    "Irsad Khadafi",
-    "Nita Ayu Tiara",
-    "Bintang Pathra wijaya",
-    "Farah Kuatulatifa",
-    "Rangga Saputra",
-    "Chalisa Rahmadan",
-  ];
-
-  return {
-    id: `dummy-${i}`,
-    email: `relawan.demo${i}@example.com`,
-    role: "USER",
-    isActive: true,
-    donorProfile: {
-      fullName: names[i],
-      nik: `317${Math.floor(1000000000000 + Math.random() * 900000000000)}`,
-      whatsappNumber: `0812${Math.floor(10000000 + Math.random() * 90000000)}`,
-      bloodType: bloodTypes[i % 4],
-      totalDonations: Math.floor(Math.random() * 15) + 1,
-      lastDonationDate: date.toISOString(),
-    },
-    donationHistories: [
-      {
-        id: `hist-dummy-${i}`,
-        locationName: "UTD PMI Setempat (Simulasi)",
-        donationDate: date.toISOString(),
-      },
-    ],
-  };
-});
+// Dummy data dihapus sesuai permintaan.
 
 export default function DonorsPage() {
   const [donors, setDonors] = useState<User[]>([]);
@@ -153,11 +105,8 @@ export default function DonorsPage() {
     fetchDonors();
   }, []);
 
-  // ── Data Merging ────────────────────────────────────────────────────────
-  // Menggabungkan 10 dummy (akan di posisi awal) dengan data riil
-  const combinedDonors = [...dummyDonors, ...donors];
-
-  const filtered = combinedDonors.filter((d) => {
+  // ── Data Asli API ────────────────────────────────────────────────────────
+  const filtered = donors.filter((d) => {
     const q = search.toLowerCase();
     return (
       d.donorProfile?.fullName?.toLowerCase().includes(q) ||
@@ -179,13 +128,13 @@ export default function DonorsPage() {
     setCurrentPage(1);
   }, [search]);
 
-  // ── Ringkasan Statistik (Seluruh Data + Dummy) ──────────────────────────
-  const totalDonors = combinedDonors.length;
-  const readyDonors = combinedDonors.filter((d) => {
+  // ── Ringkasan Statistik ──────────────────────────────────────────────────
+  const totalDonors = donors.length;
+  const readyDonors = donors.filter((d) => {
     const s = getDonorStatus(d.donationHistories);
     return s.icon === "ready";
   }).length;
-  const newDonors = combinedDonors.filter(
+  const newDonors = donors.filter(
     (d) => !d.donationHistories?.length,
   ).length;
 

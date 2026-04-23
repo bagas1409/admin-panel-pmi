@@ -87,6 +87,10 @@ export default function DashboardPage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Pagination untuk Feed
+  const [feedPage, setFeedPage] = useState(1);
+  const feedItemsPerPage = 5;
   const fetchDashboardData = async () => {
     setLoading(true);
     setError(null);
@@ -291,43 +295,70 @@ export default function DashboardPage() {
             <p className="text-sm">Belum ada data donor yang tercatat dari event atau UDD.</p>
           </div>
         ) : (
-          <div className="divide-y divide-[var(--border)]">
-            {stats.globalDonorFeed.map((item, idx) => {
-              const c = item.bloodType ? BLOOD_COLORS[item.bloodType as BloodType] : null;
-              return (
-                <div key={item.id || idx} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
-                  {/* Badge golongan darah */}
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
-                    style={{ backgroundColor: c?.bg || '#F9FAFB', color: c?.text || '#6B7280', border: `1px solid ${c?.border || '#E5E7EB'}` }}>
-                    {item.bloodType || '?'}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm text-gray-900 truncate">{item.name}</div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                        item.sourceType === 'EVENT' ? 'bg-blue-50 text-blue-600' :
-                        item.sourceType === 'UDD' ? 'bg-green-50 text-green-700' :
-                        'bg-gray-100 text-gray-500'
-                      }`}>
-                        {SOURCE_LABELS[item.sourceType] || item.sourceType}
-                      </span>
-                      {item.regionName && (
-                        <span className="text-xs text-gray-500 truncate">{item.regionName}</span>
-                      )}
+          <div>
+            <div className="divide-y divide-[var(--border)]">
+              {stats.globalDonorFeed.slice((feedPage - 1) * feedItemsPerPage, feedPage * feedItemsPerPage).map((item, idx) => {
+                const c = item.bloodType ? BLOOD_COLORS[item.bloodType as BloodType] : null;
+                return (
+                  <div key={item.id || idx} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+                    {/* Badge golongan darah */}
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm flex-shrink-0"
+                      style={{ backgroundColor: c?.bg || '#F9FAFB', color: c?.text || '#6B7280', border: `1px solid ${c?.border || '#E5E7EB'}` }}>
+                      {item.bloodType || '?'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-gray-900 truncate">{item.name}</div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                          item.sourceType === 'EVENT' ? 'bg-blue-50 text-blue-600' :
+                          item.sourceType === 'UDD' ? 'bg-green-50 text-green-700' :
+                          'bg-gray-100 text-gray-500'
+                        }`}>
+                          {SOURCE_LABELS[item.sourceType] || item.sourceType}
+                        </span>
+                        {item.regionName && (
+                          <span className="text-xs text-gray-500 truncate">{item.regionName}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <div className="text-xs font-medium text-gray-500">
+                        <Clock className="w-3 h-3 inline mr-1" />
+                        {new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {new Date(item.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-xs font-medium text-gray-500">
-                      <Clock className="w-3 h-3 inline mr-1" />
-                      {new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}
-                    </div>
-                    <div className="text-xs text-gray-400">
-                      {new Date(item.date).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
-                    </div>
-                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Paginasi Footer */}
+            {stats.globalDonorFeed.length > feedItemsPerPage && (
+              <div className="px-6 py-4 border-t border-[var(--border)] bg-gray-50 flex items-center justify-between">
+                <span className="text-xs text-gray-500">
+                  Menampilkan {Math.min((feedPage - 1) * feedItemsPerPage + 1, stats.globalDonorFeed.length)} - {Math.min(feedPage * feedItemsPerPage, stats.globalDonorFeed.length)} dari {stats.globalDonorFeed.length} donasi
+                </span>
+                <div className="flex gap-2.5">
+                  <button 
+                    onClick={() => setFeedPage(p => Math.max(1, p - 1))}
+                    disabled={feedPage === 1}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-[var(--border)] bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
+                  >
+                    Sebelumnya
+                  </button>
+                  <button 
+                    onClick={() => setFeedPage(p => Math.min(Math.ceil(stats.globalDonorFeed.length / feedItemsPerPage), p + 1))}
+                    disabled={feedPage === Math.ceil(stats.globalDonorFeed.length / feedItemsPerPage)}
+                    className="text-xs font-semibold px-3 py-1.5 rounded-lg border border-[var(--border)] bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors cursor-pointer"
+                  >
+                    Berikutnya
+                  </button>
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -307,7 +307,19 @@ export default function AddDonorModal({ isOpen, onClose, onSuccess }: Props) {
                                     <div className="grid grid-cols-2 gap-3">
                                         <div>
                                             <label className={labelClass}>Pekerjaan</label>
-                                            <input type="text" placeholder="Guru, Petani, dll." value={form.job} onChange={set('job')} className={inputClass} />
+                                            <select value={form.job} onChange={set('job')} className={inputClass}>
+                                                <option value="">Pilih Pekerjaan...</option>
+                                                <option value="Pegawai Negeri Sipil (PNS)">Pegawai Negeri Sipil (PNS)</option>
+                                                <option value="Pegawai Swasta">Pegawai Swasta</option>
+                                                <option value="Wiraswasta / Pengusaha">Wiraswasta / Pengusaha</option>
+                                                <option value="TNI / POLRI">TNI / POLRI</option>
+                                                <option value="Mahasiswa / Pelajar">Mahasiswa / Pelajar</option>
+                                                <option value="Ibu Rumah Tangga">Ibu Rumah Tangga</option>
+                                                <option value="Dokter / Tenaga Medis">Dokter / Tenaga Medis</option>
+                                                <option value="Pekerja Lepas (Freelance)">Pekerja Lepas (Freelance)</option>
+                                                <option value="Tidak Bekerja">Tidak Bekerja</option>
+                                                <option value="Lainnya">Lainnya</option>
+                                            </select>
                                         </div>
                                         <div>
                                             <label className={labelClass}>Status Pernikahan</label>

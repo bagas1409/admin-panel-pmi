@@ -49,9 +49,35 @@ export const userService = {
         await api.patch(`/admin/users/${id}/role`, { role })
     },
 
+    // Admin edit biodata pendonor
+    update: async (id: string, payload: {
+        email?: string
+        fullName?: string
+        nik?: string
+        whatsappNumber?: string
+        bloodType?: string
+        gender?: string
+        birthDate?: string
+        birthPlace?: string
+        job?: string
+        maritalStatus?: string
+        address?: string
+        village?: string
+        subdistrict?: string
+        city?: string
+    }): Promise<void> => {
+        await api.patch(`/users/${id}`, payload)
+    },
+
+    // Admin hapus akun pendonor (permanen)
+    delete: async (id: string): Promise<void> => {
+        await api.delete(`/users/${id}`)
+    },
+
     // Admin daftarkan user ke Markas atau Event
     adminDonorin: async (userId: string, payload: { targetType: 'REGION' | 'EVENT'; targetId: string }): Promise<any> => {
         const { data } = await api.post(`/users/${userId}/donorin`, payload)
         return data.data
     },
 }
+
