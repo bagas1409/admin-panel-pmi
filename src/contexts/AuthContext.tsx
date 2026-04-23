@@ -81,8 +81,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const data = await authService.login(email, password)
 
-            if (data.user.role !== 'ADMIN_PMI') {
-                throw new Error('Akses ditolak. Layar ini khusus Admin UDD PMI Pringsewu.')
+            if (data.user.role !== 'ADMIN_PMI' && data.user.role !== 'ADMIN_DISTRIBUSI') {
+                throw new Error('Akses ditolak. Layar ini khusus Admin dan Distributor UDD PMI Pringsewu.')
             }
 
             localStorage.setItem('token', data.token)
