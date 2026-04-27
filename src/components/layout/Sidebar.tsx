@@ -10,6 +10,8 @@ import {
   ArrowDownCircle,
   Package,
   FileText,
+  Building2,
+  ClipboardCheck,
 } from "lucide-react";
 
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,8 +22,10 @@ const navItems = [
   { to: "/regions", label: "Manajemen UDD", icon: MapPin, roles: ['ADMIN_PMI'] },
   { to: "/blood-requests", label: "Permintaan Darah", icon: FileText, roles: ['ADMIN_PMI'] },
   { to: "/distribution", label: "Distribusi Stok Darah", icon: ArrowDownCircle, roles: ['ADMIN_DISTRIBUSI'] },
+  { to: "/hospital-requests", label: "Permintaan RS Swasta", icon: Building2, roles: ['ADMIN_DISTRIBUSI'] },
   { to: "/distribution-center", label: "Distribution Center", icon: Package, roles: ['ADMIN_DISTRIBUSI'] },
   { to: "/broadcast", label: "Siaran Darurat", icon: RadioTower, roles: ['ADMIN_PMI'] },
+  { to: "/hospital-role-approvals", label: "Persetujuan RS Swasta", icon: ClipboardCheck, roles: ['ADMIN_PMI'] },
   { to: "/donors", label: "Relawan", icon: Users, roles: ['ADMIN_PMI'] },
   { to: "/users", label: "Pengguna", icon: UserCog, roles: ['ADMIN_PMI'] },
 ];

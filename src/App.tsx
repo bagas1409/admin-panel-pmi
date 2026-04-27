@@ -13,6 +13,8 @@ import DistributionCenterPage from '@/pages/distribution/DistributionCenterPage'
 import DCStockPage from '@/pages/distribution/DCStockPage'
 import DCInventoryPage from '@/pages/distribution/DCInventoryPage'
 import BloodRequestsPage from '@/pages/bloodRequests/BloodRequestsPage'
+import HospitalRequestsPage from '@/pages/distribution/HospitalRequestsPage'
+import HospitalRoleApprovalsPage from '@/pages/users/HospitalRoleApprovalsPage'
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
     const { user, token, isLoading } = useAuth()
@@ -88,6 +90,11 @@ function App() {
                                     <BloodRequestsPage />
                                 </ProtectedRoute>
                             } />
+                            <Route path="/hospital-role-approvals" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <HospitalRoleApprovalsPage />
+                                </ProtectedRoute>
+                            } />
 
                             {/* RUTE UNTUK ADMIN DISTRIBUSI SAJA */}
                             <Route path="/distribution" element={
@@ -108,6 +115,11 @@ function App() {
                             <Route path="/distribution-center/inventory" element={
                                 <ProtectedRoute allowedRoles={['ADMIN_DISTRIBUSI']}>
                                     <DCInventoryPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/hospital-requests" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_DISTRIBUSI']}>
+                                    <HospitalRequestsPage />
                                 </ProtectedRoute>
                             } />
                         </Routes>
