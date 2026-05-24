@@ -1,16 +1,50 @@
 @import "tailwindcss";
 
+@theme {
+  --color-red-50: #fff5f5;
+  --color-red-100: #fee2e2;
+  --color-red-200: #fecaca;
+  --color-red-300: #fca5a5;
+  --color-red-400: #f87171;
+  --color-red-500: #462C7D;
+  --color-red-600: #CE2626;
+  --color-red-700: #a81c1c;
+  --color-red-800: #991b1b;
+  --color-red-900: #7f1d1d;
+  --color-red-950: #450a0a;
+}
+
 :root {
-  --primary: #CE2626;
-  --primary-dark: #A51A1A;
-  --primary-light: #F04D4D;
-  --secondary: #4D2FB2;
-  --background: #f3f4f6;
+  --primary: #462C7D;
+  --primary-dark: #CE2626;
+  --primary-light: #7e57c2;
+  --secondary: #6b21a8;
+  --background: #fdfafb;
   --card-bg: #ffffff;
   --text: #1f2937;
   --text-muted: #6b7280;
   --border: #e5e7eb;
   --success: #10b981;
   --warning: #f59e0b;
-  --danger: #ef4444;
+  --danger: #7e22ce;
+}
+
+@utility bg-red-500 {
+  background-image: linear-gradient(to right, #6c529e, #CE2626);
+}
+
+@utility bg-red-600 {
+  background-image: linear-gradient(to right, #462C7D, #CE2626);
+}
+
+@utility bg-red-700 {
+  background-image: linear-gradient(to right, #2d1c52, #A51A1A);
+}
+
+@utility bg-red-50 {
+  background-color: #fff5f5;
+}
+
+@utility bg-red-100 {
+  background-color: #fee2e2;
 }

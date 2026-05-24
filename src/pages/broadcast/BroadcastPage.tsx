@@ -6,6 +6,8 @@ import { broadcastService } from '@/api/services'
 export default function BroadcastPage() {
     const [history, setHistory] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
+    const [currentPage, setCurrentPage] = useState(1)
+    const itemsPerPage = 5
 
     const [title, setTitle] = useState('')
     const [message, setMessage] = useState('')
@@ -37,12 +39,16 @@ export default function BroadcastPage() {
             setMessage('')
             setType('EMERGENCY')
             fetchHistory()
+            setCurrentPage(1)
         } catch (err: any) {
             alert('Gagal menyebarkan sinyal: ' + err.message)
         } finally {
             setSending(false)
         }
     }
+
+    const totalPages = Math.ceil(history.length / itemsPerPage)
+    const currentItems = history.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -106,28 +112,53 @@ export default function BroadcastPage() {
                     {loading ? (
                         <div className="flex-1 flex items-center justify-center text-gray-400">Memuat log...</div>
                     ) : (
-                        <div className="p-6 flex-1 bg-gray-50/50 overflow-y-auto space-y-4">
-                            {history.length === 0 ? (
-                                <div className="text-center text-gray-400 py-10">Belum ada riwayat siaran.</div>
-                            ) : (
-                                history.map(item => (
-                                    <div key={item.id} className="bg-white border text-left border-gray-200 rounded-xl p-4 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
-                                        <div className={`mt-1 flex-shrink-0 ${item.type === 'EMERGENCY' ? 'text-red-600' : item.type === 'INFO' ? 'text-blue-500' : 'text-orange-500'}`}>
-                                            {item.type === 'EMERGENCY' ? <AlertTriangle className="w-6 h-6"/> : item.type === 'INFO' ? <Info className="w-6 h-6"/> : <CheckCircle className="w-6 h-6"/>}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="font-bold text-gray-900 text-base">{item.title}</h4>
-                                                <span className="text-xs text-gray-400 font-medium">
-                                                    {new Date(item.createdAt).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short'})}
-                                                </span>
+                        <>
+                            <div className="p-6 flex-1 bg-gray-50/50 overflow-y-auto space-y-4">
+                                {history.length === 0 ? (
+                                    <div className="text-center text-gray-400 py-10">Belum ada riwayat siaran.</div>
+                                ) : (
+                                    currentItems.map(item => (
+                                        <div key={item.id} className="bg-white border text-left border-gray-200 rounded-xl p-4 flex gap-4 shadow-sm hover:shadow-md transition-shadow">
+                                            <div className={`mt-1 flex-shrink-0 ${item.type === 'EMERGENCY' ? 'text-red-600' : item.type === 'INFO' ? 'text-blue-500' : 'text-orange-500'}`}>
+                                                {item.type === 'EMERGENCY' ? <AlertTriangle className="w-6 h-6"/> : item.type === 'INFO' ? <Info className="w-6 h-6"/> : <CheckCircle className="w-6 h-6"/>}
                                             </div>
-                                            <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">{item.message}</p>
+                                            <div className="flex-1">
+                                                <div className="flex justify-between items-start">
+                                                    <h4 className="font-bold text-gray-900 text-base">{item.title}</h4>
+                                                    <span className="text-xs text-gray-400 font-medium">
+                                                        {new Date(item.createdAt).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short'})}
+                                                    </span>
+                                                </div>
+                                                <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">{item.message}</p>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))
+                                    ))
+                                )}
+                            </div>
+
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                                <div className="px-6 py-4 border-t border-[var(--border)] flex items-center justify-between bg-white rounded-b-2xl">
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        disabled={currentPage === 1}
+                                        className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                                    >
+                                        Sebelumnya
+                                    </button>
+                                    <span className="text-xs font-semibold text-gray-500">
+                                        Halaman {currentPage} dari {totalPages}
+                                    </span>
+                                    <button
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        disabled={currentPage === totalPages}
+                                        className="px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                                    >
+                                        Berikutnya
+                                    </button>
+                                </div>
                             )}
-                        </div>
+                        </>
                     )}
                 </div>
             </div>

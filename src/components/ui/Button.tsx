@@ -7,9 +7,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles = {
-    primary: 'bg-[var(--primary)] text-white hover:bg-[var(--primary-dark)]',
+    primary: 'bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white hover:opacity-95 shadow-sm shadow-[#462C7D]/20 active:scale-[0.98] transition-all',
     secondary: 'bg-[var(--background)] text-[var(--text)] hover:bg-[var(--border)]',
-    danger: 'bg-[var(--danger)] text-white hover:bg-red-600',
+    danger: 'bg-gradient-to-r from-[#CE2626] to-[#462C7D] text-white hover:opacity-95 shadow-sm shadow-[#CE2626]/20 active:scale-[0.98] transition-all',
     ghost: 'bg-transparent text-[var(--text-muted)] hover:bg-[var(--background)]',
 }
 

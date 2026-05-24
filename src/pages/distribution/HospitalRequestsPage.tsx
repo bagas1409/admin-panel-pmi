@@ -88,7 +88,7 @@ export default function HospitalRequestsPage() {
       <div className="flex gap-1 bg-gray-100 p-1 rounded-xl w-fit">
         {(['requests', 'history'] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === t ? 'bg-white shadow text-[var(--primary)]' : 'text-gray-500 hover:text-gray-700'}`}>
+            className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === t ? 'bg-[var(--primary)] text-white shadow' : 'text-gray-500 hover:text-gray-700'}`}>
             {t === 'requests' ? <><ClipboardList className="w-4 h-4 inline mr-1.5" />Permintaan Masuk</> : <><FileText className="w-4 h-4 inline mr-1.5" />Riwayat Pengeluaran</>}
           </button>
         ))}
@@ -160,11 +160,11 @@ export default function HospitalRequestsPage() {
                   {r.status === 'PENDING' && (
                     <div className="grid grid-cols-2 gap-2 mt-4">
                       <button onClick={() => handleReject(r.id)} disabled={!!processingId}
-                        className="py-2 rounded-xl bg-red-50 text-red-700 font-bold text-sm border border-red-100 hover:bg-red-100">
+                        className="py-2 rounded-xl bg-gradient-to-r from-[#CE2626] to-[#462C7D] text-white font-bold text-sm hover:opacity-95 transition-all shadow-sm">
                         Tolak
                       </button>
                       <button onClick={() => { setProcessModal(r); setNamaPengambil('') }} disabled={!!processingId}
-                        className="py-2 rounded-xl bg-[var(--primary)] text-white font-bold text-sm hover:opacity-90 shadow-sm flex items-center justify-center gap-1">
+                        className="py-2 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-bold text-sm hover:opacity-95 shadow-sm flex items-center justify-center gap-1 transition-all">
                         <CheckCircle className="w-4 h-4" /> Proses
                       </button>
                     </div>
@@ -257,7 +257,7 @@ export default function HospitalRequestsPage() {
               <div className="flex gap-3">
                 <button onClick={() => setProcessModal(null)} className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50">Batal</button>
                 <button onClick={handleProcess} disabled={!!processingId || !namaPengambil.trim()}
-                  className="flex-1 py-3 rounded-xl bg-green-600 text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 shadow-sm">
+                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-semibold text-sm hover:opacity-95 disabled:opacity-50 shadow-sm transition-all active:scale-[0.98]">
                   {processingId ? 'Memproses...' : 'Konfirmasi & Selesaikan'}
                 </button>
               </div>

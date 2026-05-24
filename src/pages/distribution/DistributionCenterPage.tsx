@@ -59,7 +59,7 @@ export default function DistributionCenterPage() {
           {/* Card 1: Stok Mentah WB */}
           <button
             onClick={() => navigate('/distribution-center/stock')}
-            className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] shadow-sm p-6 text-left hover:shadow-md hover:border-red-200 transition-all group"
+            className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] shadow-sm p-6 text-left hover:shadow-md hover:border-purple-300 transition-all group"
           >
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">

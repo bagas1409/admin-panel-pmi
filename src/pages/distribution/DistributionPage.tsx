@@ -81,7 +81,7 @@ export default function DistributionPage() {
           </button>
           <button
             onClick={() => setShowForm(true)}
-            className="px-4 py-2 rounded-xl bg-[var(--primary)] text-white text-sm font-semibold shadow-sm hover:opacity-90 transition-opacity flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white text-sm font-semibold shadow-sm hover:opacity-95 active:scale-[0.98] transition-all flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> Buat Permintaan
           </button>
@@ -229,7 +229,7 @@ export default function DistributionPage() {
                   Batal
                 </button>
                 <button onClick={handleCreate} disabled={saving}
-                  className="flex-1 py-2.5 rounded-xl bg-[var(--primary)] text-white font-semibold text-sm hover:opacity-90 disabled:opacity-50 shadow-sm">
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-semibold text-sm hover:opacity-95 disabled:opacity-50 shadow-sm active:scale-[0.98] transition-all">
                   {saving ? 'Mengirim...' : 'Kirim Permintaan'}
                 </button>
               </div>

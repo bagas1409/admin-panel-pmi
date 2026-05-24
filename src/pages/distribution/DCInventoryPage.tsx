@@ -85,7 +85,7 @@ export default function DCInventoryPage() {
         </div>
         <button
           onClick={() => setShowAdd(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-purple-600 text-white font-semibold text-sm shadow-sm hover:bg-purple-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-semibold text-sm shadow-sm hover:opacity-95 active:scale-[0.98] transition-all"
         >
           <Plus className="w-4 h-4" /> Tambah Inventori
         </button>
@@ -250,7 +250,7 @@ export default function DCInventoryPage() {
                   Batal
                 </button>
                 <button onClick={handleAdd} disabled={saving || !canSave}
-                  className="flex-1 py-2.5 rounded-xl bg-purple-600 text-white font-semibold text-sm hover:bg-purple-700 disabled:opacity-50 shadow-sm transition-colors">
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-semibold text-sm hover:opacity-95 disabled:opacity-50 shadow-sm active:scale-[0.98] transition-all">
                   {saving ? 'Menyimpan...' : 'Simpan Inventori'}
                 </button>
               </div>
