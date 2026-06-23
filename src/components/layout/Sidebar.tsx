@@ -28,6 +28,7 @@ const navItems = [
   { to: "/distribution-center", label: "Distribution Center", icon: Package, roles: ['ADMIN_DISTRIBUSI'] },
   { to: "/broadcast", label: "Siaran Darurat", icon: RadioTower, roles: ['ADMIN_PMI'] },
   { to: "/hospital-role-approvals", label: "Persetujuan RS Swasta", icon: ClipboardCheck, roles: ['ADMIN_PMI'] },
+  { to: "/hospital-partners", label: "Daftar RS Swasta", icon: Building2, roles: ['ADMIN_PMI'] },
   { to: "/donors", label: "Relawan", icon: Users, roles: ['ADMIN_PMI'] },
   { to: "/users", label: "Pengguna", icon: UserCog, roles: ['ADMIN_PMI'] },
   

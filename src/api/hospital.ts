@@ -91,3 +91,16 @@ export const getMyBloodUsages = async () => {
   const { data } = await api.get('/hospital/stocks/usages');
   return data.data;
 };
+
+// ── REGISTERED HOSPITAL PROFILE MANAGEMENT (ADMIN PMI) ───────
+
+export const getHospitalProfiles = async (page = 1, limit = 10, search = '') => {
+  const query = `page=${page}&limit=${limit}${search ? `&search=${encodeURIComponent(search)}` : ''}`;
+  const { data } = await api.get(`/hospital/profiles?${query}`);
+  return data.data;
+};
+
+export const toggleHospitalActive = async (id: string) => {
+  const { data } = await api.patch(`/hospital/profiles/${id}/toggle-active`);
+  return data.data;
+};

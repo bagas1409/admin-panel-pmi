@@ -15,6 +15,7 @@ import DCInventoryPage from '@/pages/dc/DCInventoryPage'
 import BloodRequestsPage from '@/pages/admin/bloodRequests/BloodRequestsPage'
 import HospitalRequestsPage from '@/pages/dc/HospitalRequestsPage'
 import HospitalRoleApprovalsPage from '@/pages/admin/users/HospitalRoleApprovalsPage'
+import HospitalPartnersPage from '@/pages/admin/hospitals/HospitalPartnersPage'
 import HospitalDashboardPage from '@/pages/rs_swasta/HospitalDashboardPage'
 import HospitalOwnRequestsPage from '@/pages/rs_swasta/HospitalOwnRequestsPage'
 import HospitalStockPage from '@/pages/rs_swasta/HospitalStockPage'
@@ -98,6 +99,11 @@ function App() {
                             <Route path="/hospital-role-approvals" element={
                                 <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
                                     <HospitalRoleApprovalsPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/hospital-partners" element={
+                                <ProtectedRoute allowedRoles={['ADMIN_PMI']}>
+                                    <HospitalPartnersPage />
                                 </ProtectedRoute>
                             } />
 
