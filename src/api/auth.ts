@@ -12,4 +12,8 @@ export const authService = {
         const response = await api.get('/auth/me') // diperbaiki sekalian routenya dari /me menjadi /auth/me
         return response.data.data
     },
+
+    logout: async () => {
+        await api.post('/auth/logout')
+    },
 }

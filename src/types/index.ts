@@ -40,7 +40,7 @@ export interface EventParticipant {
 export interface User {
     id: string
     email: string
-    role: 'USER' | 'ADMIN_PMI' | 'HOSPITAL' | 'ADMIN_DISTRIBUSI'
+    role: 'USER' | 'ADMIN_PMI' | 'RS_SWASTA' | 'ADMIN_DISTRIBUSI'
     isActive: boolean
     createdAt?: string
     donorProfile?: DonorProfileFull
@@ -49,7 +49,7 @@ export interface User {
 }
 
 export interface LoginResponse {
-    token: string
+    token?: string
     user: User
 }
 

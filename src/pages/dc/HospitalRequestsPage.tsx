@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Building2, Droplet, User, Clock, CheckCircle, XCircle, FileText, Activity, AlertTriangle, ClipboardList } from 'lucide-react'
+import { Building2, Droplet, User, Clock, CheckCircle, XCircle, FileText, Activity, AlertTriangle, ClipboardList, Archive, CalendarDays } from 'lucide-react'
 import { getHospitalBloodRequests, processBloodRequest, rejectBloodRequest, getDispensingHistory } from '@/api/hospital'
 
 const BT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
@@ -107,77 +107,100 @@ export default function HospitalRequestsPage() {
           </div>
 
           {/* List Request */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="overflow-x-auto bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] shadow-sm mt-4">
             {loading ? (
-              <div className="col-span-2 py-20 text-center text-gray-400 animate-pulse">Memuat permintaan...</div>
+              <div className="py-20 text-center text-gray-400 animate-pulse">Memuat permintaan...</div>
             ) : requests.length === 0 ? (
-              <div className="col-span-2 py-20 text-center">
+              <div className="py-20 text-center">
                 <Activity className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500 font-semibold">Tidak ada permintaan masuk</p>
               </div>
-            ) : requests.map(r => {
-              const c = BT_COLORS[r.golonganDarah] || BT_COLORS['A']
-              const badge = STATUS_MAP[r.status] || { label: r.status, cls: 'bg-gray-100 text-gray-500 border-gray-200' }
-              return (
-                <div key={r.id} className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] p-5 shadow-sm hover:shadow-md transition-shadow">
-                  {/* Header Card */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <div className="font-bold text-gray-800">{r.hospitalProfile?.namaRs}</div>
-                      <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                        <Clock className="w-3 h-3" />
-                        {new Date(r.requestedAt).toLocaleString('id-ID')}
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <span className={`text-[11px] px-2.5 py-1 rounded-full border font-bold ${badge.cls}`}>{badge.label}</span>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${URGENCY_BADGE[r.tingkatUrgensi]}`}>
-                        {r.tingkatUrgensi === 'DARURAT' && '🚨 '}{r.tingkatUrgensi}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Blood Info */}
-                  <div className="flex items-center gap-4 mb-4 p-3 rounded-xl" style={{ backgroundColor: c.bg, border: `1px solid ${c.border}` }}>
-                    <div className="w-14 h-14 rounded-xl flex flex-col items-center justify-center font-black text-xl shrink-0" style={{ backgroundColor: 'white', color: c.text, border: `2px solid ${c.border}` }}>
-                      {r.golonganDarah}
-                      <span className="text-[9px] font-bold opacity-70 uppercase">{r.jenisProduk}</span>
-                    </div>
-                    <div>
-                      <div className="text-3xl font-black" style={{ color: c.text }}>{r.jumlahKantong} <span className="text-sm font-medium text-gray-500">kantong</span></div>
-                      <div className="text-xs font-semibold" style={{ color: c.text }}>Gol. {r.golonganDarah} — {r.jenisProduk}</div>
-                    </div>
-                  </div>
-
-                  {/* Medical Info */}
-                  <div className="space-y-2 text-sm border-t border-gray-100 pt-3">
-                    <div className="flex gap-2"><User className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" /><div><span className="font-medium text-gray-700">{r.namaPasien}</span> <span className="text-gray-400 text-xs">— {r.noRekamMedis}</span></div></div>
-                    <div className="flex gap-2"><Droplet className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" /><span className="text-gray-600">dr. {r.namaDokter}</span></div>
-                    <div className="text-xs text-gray-500 italic bg-gray-50 p-2 rounded-lg border border-gray-100">"{r.alasanMedis}"</div>
-                  </div>
-
-                  {/* Tombol Aksi */}
-                  {r.status === 'PENDING' && (
-                    <div className="grid grid-cols-2 gap-2 mt-4">
-                      <button onClick={() => handleReject(r.id)} disabled={!!processingId}
-                        className="py-2 rounded-xl bg-gradient-to-r from-[#CE2626] to-[#462C7D] text-white font-bold text-sm hover:opacity-95 transition-all shadow-sm">
-                        Tolak
-                      </button>
-                      <button onClick={() => { setProcessModal(r); setNamaPengambil('') }} disabled={!!processingId}
-                        className="py-2 rounded-xl bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-bold text-sm hover:opacity-95 shadow-sm flex items-center justify-center gap-1 transition-all">
-                        <CheckCircle className="w-4 h-4" /> Proses
-                      </button>
-                    </div>
-                  )}
-
-                  {r.status === 'SELESAI' && r.dispensing && (
-                    <button onClick={() => setDetailModal(r)} className="mt-4 w-full py-2 rounded-xl bg-green-50 text-green-700 font-semibold text-sm border border-green-200 hover:bg-green-100 flex items-center justify-center gap-1">
-                      <FileText className="w-4 h-4" /> Lihat Struk Pengeluaran
-                    </button>
-                  )}
-                </div>
-              )
-            })}
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-[var(--border)]">
+                  <tr className="text-xs text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left font-bold">Rumah Sakit</th>
+                    <th className="px-6 py-3 text-left font-bold">Golongan</th>
+                    <th className="px-6 py-3 text-left font-bold">Jumlah</th>
+                    <th className="px-6 py-3 text-left font-bold">Keterangan / Pasien</th>
+                    <th className="px-6 py-3 text-left font-bold">Status</th>
+                    <th className="px-6 py-3 text-right font-bold">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {requests.map(r => {
+                    const c = BT_COLORS[r.golonganDarah] || BT_COLORS['A']
+                    const badge = STATUS_MAP[r.status] || { label: r.status, cls: 'bg-gray-100 text-gray-500 border-gray-200' }
+                    return (
+                      <tr key={r.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-3">
+                          <div className="font-semibold text-gray-800">{r.hospitalProfile?.namaRs}</div>
+                          <div className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
+                            <Clock className="w-3 h-3" />
+                            {new Date(r.requestedAt).toLocaleString('id-ID')}
+                          </div>
+                        </td>
+                        <td className="px-6 py-3">
+                          <span className="px-2.5 py-1 rounded-lg font-bold text-xs border" style={{ backgroundColor: c.bg, color: c.text, borderColor: c.border }}>
+                            {r.golonganDarah} {r.jenisProduk}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3 font-bold text-gray-700">{r.jumlahKantong} Kt</td>
+                        <td className="px-6 py-3">
+                          <div className="space-y-0.5">
+                            {(!r.kategoriPermintaan || r.kategoriPermintaan === 'PASIEN') && (
+                              <>
+                                <div className="font-medium text-gray-800 text-xs">{r.namaPasien} <span className="text-gray-400 font-normal">({r.noRekamMedis})</span></div>
+                                <div className="text-[11px] text-gray-500 truncate max-w-[200px]">dr. {r.namaDokter} • {r.alasanMedis}</div>
+                              </>
+                            )}
+                            {r.kategoriPermintaan === 'STOK_MINIMUM' && (
+                              <>
+                                <div className="font-medium text-gray-800 text-xs">Buffer Unit {r.unitLayanan}</div>
+                                <div className="text-[11px] text-gray-500">Rata-rata: {r.pemakaianBulanan} ktg/bln</div>
+                              </>
+                            )}
+                            {r.kategoriPermintaan === 'PREDIKSI' && (
+                              <>
+                                <div className="font-medium text-gray-800 text-xs">{r.jenisOperasi ? `Operasi: ${r.jenisOperasi}` : 'Transfusi Rutin'}</div>
+                                <div className="text-[11px] text-gray-500">Jadwal: {new Date(r.jadwalOperasi || r.jadwalTransfusiRutin).toLocaleDateString('id-ID')}</div>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-3">
+                          <div className="flex flex-col items-start gap-1">
+                            <span className={`text-[10px] px-2 py-0.5 rounded-md border font-bold ${badge.cls}`}>{badge.label}</span>
+                            <span className={`text-[9px] px-2 py-0.5 rounded-md font-bold uppercase ${URGENCY_BADGE[r.tingkatUrgensi]}`}>
+                              {r.tingkatUrgensi === 'DARURAT' && '🚨 '}{r.tingkatUrgensi}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3 text-right">
+                          {r.status === 'PENDING' && (
+                            <div className="flex items-center justify-end gap-2">
+                              <button onClick={() => handleReject(r.id)} disabled={!!processingId}
+                                className="px-2 py-1 rounded text-red-600 hover:bg-red-50 font-bold text-xs transition-colors">
+                                Tolak
+                              </button>
+                              <button onClick={() => { setProcessModal(r); setNamaPengambil('') }} disabled={!!processingId}
+                                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-[var(--primary)] to-[var(--primary-dark)] text-white font-bold text-xs shadow-sm hover:opacity-90 transition-all flex items-center gap-1">
+                                <CheckCircle className="w-3.5 h-3.5" /> Proses
+                              </button>
+                            </div>
+                          )}
+                          {r.status === 'SELESAI' && r.dispensing && (
+                            <button onClick={() => setDetailModal(r)} className="px-3 py-1.5 rounded-lg bg-green-50 text-green-700 font-bold text-xs border border-green-200 hover:bg-green-100 flex items-center justify-center gap-1 ml-auto">
+                              <FileText className="w-3.5 h-3.5" /> Struk
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            )}
           </div>
         </>
       )}
@@ -194,33 +217,51 @@ export default function HospitalRequestsPage() {
               <p className="text-gray-500 font-semibold">Belum ada riwayat pengeluaran</p>
             </div>
           ) : (
-            <div className="divide-y divide-[var(--border)]">
-              {history.map(d => {
-                const c = BT_COLORS[d.golonganDarah] || BT_COLORS['A']
-                return (
-                  <div key={d.id} className="px-6 py-4 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-gray-50/50">
-                    <div className="w-14 h-14 rounded-xl flex flex-col items-center justify-center font-black text-lg shrink-0"
-                      style={{ backgroundColor: c.bg, color: c.text, border: `1.5px solid ${c.border}` }}>
-                      {d.golonganDarah}<span className="text-[9px]">{d.jenisProduk}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="font-bold text-gray-800">{d.namaRs}</div>
-                      <div className="text-sm text-gray-600">Pasien: <span className="font-medium">{d.namaPasien}</span> ({d.noRekamMedis})</div>
-                      <div className="text-xs text-gray-400 flex gap-3 mt-0.5">
-                        <span>dr. {d.namaDokter}</span>
-                        <span>·</span>
-                        <span>Petugas: {d.namaPetugasPmi}</span>
-                        <span>·</span>
-                        <span>Pengambil: {d.namaPengambil}</span>
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-2xl font-black" style={{ color: c.text }}>{d.jumlahKantong} <span className="text-xs font-normal text-gray-400">Kt</span></div>
-                      <div className="text-xs text-gray-400">{new Date(d.dispensedAt).toLocaleString('id-ID')}</div>
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-gray-50 border-b border-[var(--border)]">
+                  <tr className="text-xs text-gray-500 uppercase tracking-wider">
+                    <th className="px-6 py-3 text-left font-bold">Rumah Sakit Pemohon</th>
+                    <th className="px-6 py-3 text-left font-bold">Golongan</th>
+                    <th className="px-6 py-3 text-left font-bold">Jumlah</th>
+                    <th className="px-6 py-3 text-left font-bold">Keterangan / Pasien</th>
+                    <th className="px-6 py-3 text-left font-bold">Petugas & Pengambil</th>
+                    <th className="px-6 py-3 text-left font-bold">Tanggal</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border)]">
+                  {history.map(d => {
+                    const c = BT_COLORS[d.golonganDarah] || BT_COLORS['A']
+                    return (
+                      <tr key={d.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-3 font-semibold text-gray-800">{d.namaRs}</td>
+                        <td className="px-6 py-3">
+                          <span className="px-2.5 py-1 rounded-lg font-bold text-xs border"
+                            style={{ backgroundColor: c.bg, color: c.text, borderColor: c.border }}>
+                            {d.golonganDarah} {d.jenisProduk}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3 font-bold text-gray-700">{d.jumlahKantong} Kt</td>
+                        <td className="px-6 py-3">
+                          <div className="text-xs font-medium text-gray-800">{d.namaPasien || d.alasanMedis || 'Permintaan Darah'}</div>
+                          {d.noRekamMedis && <div className="text-[11px] text-gray-500 mt-0.5">RM: {d.noRekamMedis}</div>}
+                          {d.namaDokter && <div className="text-[11px] text-gray-500">dr. {d.namaDokter}</div>}
+                        </td>
+                        <td className="px-6 py-3">
+                          <div className="text-[11px] text-gray-600 bg-gray-50 p-2 rounded-md border border-gray-100 inline-block">
+                            <div><span className="text-gray-400 w-14 inline-block">Petugas</span>: <span className="font-bold">{d.namaPetugasPmi}</span></div>
+                            <div className="mt-0.5"><span className="text-gray-400 w-14 inline-block">Pengambil</span>: <span className="font-bold">{d.namaPengambil}</span></div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3 text-gray-400 text-xs flex items-center gap-1">
+                          <CalendarDays className="w-3 h-3" />
+                          {new Date(d.dispensedAt).toLocaleString('id-ID')}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -239,7 +280,7 @@ export default function HospitalRequestsPage() {
             <div className="p-6 space-y-4">
               <div className="bg-gray-50 rounded-xl p-4 text-sm space-y-1.5">
                 <div><span className="text-gray-500">RS:</span> <span className="font-semibold">{processModal.hospitalProfile?.namaRs}</span></div>
-                <div><span className="text-gray-500">Pasien:</span> <span className="font-semibold">{processModal.namaPasien}</span></div>
+                <div><span className="text-gray-500">Info:</span> <span className="font-semibold">{processModal.namaPasien || processModal.unitLayanan || processModal.jenisOperasi || 'Transfusi Rutin'}</span></div>
                 <div><span className="text-gray-500">Produk:</span> <span className="font-semibold text-[var(--primary)]">{processModal.golonganDarah}-{processModal.jenisProduk} × {processModal.jumlahKantong} Kantong</span></div>
               </div>
               <div>
@@ -280,9 +321,8 @@ export default function HospitalRequestsPage() {
               <div className="space-y-3 text-left text-sm">
                 {[
                   ['RS', detailModal.dispensing.namaRs],
-                  ['Pasien', `${detailModal.dispensing.namaPasien} (${detailModal.dispensing.noRekamMedis})`],
-                  ['Dokter', `dr. ${detailModal.dispensing.namaDokter}`],
-                  ['Alasan Medis', detailModal.dispensing.alasanMedis],
+                  ['Keterangan', `${detailModal.dispensing.namaPasien || detailModal.dispensing.alasanMedis || '-'} ${detailModal.dispensing.noRekamMedis ? '(' + detailModal.dispensing.noRekamMedis + ')' : ''}`],
+                  ['Dokter', detailModal.dispensing.namaDokter ? `dr. ${detailModal.dispensing.namaDokter}` : '-'],
                   ['Petugas PMI', detailModal.dispensing.namaPetugasPmi],
                   ['Pengambil', detailModal.dispensing.namaPengambil],
                 ].map(([label, val]) => (

@@ -30,6 +30,12 @@ const navItems = [
   { to: "/hospital-role-approvals", label: "Persetujuan RS Swasta", icon: ClipboardCheck, roles: ['ADMIN_PMI'] },
   { to: "/donors", label: "Relawan", icon: Users, roles: ['ADMIN_PMI'] },
   { to: "/users", label: "Pengguna", icon: UserCog, roles: ['ADMIN_PMI'] },
+  
+  // RS_SWASTA
+  { to: "/hospital-dashboard", label: "Dashboard RS", icon: LayoutDashboard, roles: ['RS_SWASTA'] },
+  { to: "/hospital-my-requests", label: "Permintaan Darah", icon: FileText, roles: ['RS_SWASTA'] },
+  { to: "/hospital-blood-stocks", label: "Stok Darah RS", icon: Package, roles: ['RS_SWASTA'] },
+  { to: "/hospital-profile", label: "Profil Instansi", icon: Building2, roles: ['RS_SWASTA'] },
 ];
 
 interface SidebarProps {

@@ -2,19 +2,23 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import MainLayout from '@/layouts/MainLayout'
 import LoginPage from '@/pages/auth/LoginPage'
-import DashboardPage from '@/pages/dashboard/DashboardPage'
-import RegionsPage from '@/pages/regions/RegionsPage'
-import DonorsPage from '@/pages/donors/DonorsPage'
-import UsersPage from '@/pages/users/UsersPage'
-import EventsPage from '@/pages/events/EventsPage'
-import BroadcastPage from '@/pages/broadcast/BroadcastPage'
-import DistributionPage from '@/pages/distribution/DistributionPage'
-import DistributionCenterPage from '@/pages/distribution/DistributionCenterPage'
-import DCStockPage from '@/pages/distribution/DCStockPage'
-import DCInventoryPage from '@/pages/distribution/DCInventoryPage'
-import BloodRequestsPage from '@/pages/bloodRequests/BloodRequestsPage'
-import HospitalRequestsPage from '@/pages/distribution/HospitalRequestsPage'
-import HospitalRoleApprovalsPage from '@/pages/users/HospitalRoleApprovalsPage'
+import DashboardPage from '@/pages/admin/dashboard/DashboardPage'
+import RegionsPage from '@/pages/admin/regions/RegionsPage'
+import DonorsPage from '@/pages/admin/donors/DonorsPage'
+import UsersPage from '@/pages/admin/users/UsersPage'
+import EventsPage from '@/pages/admin/events/EventsPage'
+import BroadcastPage from '@/pages/admin/broadcast/BroadcastPage'
+import DistributionPage from '@/pages/dc/DistributionPage'
+import DistributionCenterPage from '@/pages/dc/DistributionCenterPage'
+import DCStockPage from '@/pages/dc/DCStockPage'
+import DCInventoryPage from '@/pages/dc/DCInventoryPage'
+import BloodRequestsPage from '@/pages/admin/bloodRequests/BloodRequestsPage'
+import HospitalRequestsPage from '@/pages/dc/HospitalRequestsPage'
+import HospitalRoleApprovalsPage from '@/pages/admin/users/HospitalRoleApprovalsPage'
+import HospitalDashboardPage from '@/pages/rs_swasta/HospitalDashboardPage'
+import HospitalOwnRequestsPage from '@/pages/rs_swasta/HospitalOwnRequestsPage'
+import HospitalStockPage from '@/pages/rs_swasta/HospitalStockPage'
+import HospitalProfilePage from '@/pages/rs_swasta/HospitalProfilePage'
 
 function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode; allowedRoles: string[] }) {
     const { user, token, isLoading } = useAuth()
@@ -34,6 +38,7 @@ function ProtectedRoute({ children, allowedRoles }: { children: React.ReactNode;
     // Redirect login user based on their specific role to avoid 'stuck on white screen' problem 
     if (!allowedRoles.includes(user.role)) {
         if (user.role === 'ADMIN_DISTRIBUSI') return <Navigate to="/distribution" replace />
+        if (user.role === 'RS_SWASTA') return <Navigate to="/hospital-dashboard" replace />
         return <Navigate to="/dashboard" replace />
     }
 
@@ -120,6 +125,28 @@ function App() {
                             <Route path="/hospital-requests" element={
                                 <ProtectedRoute allowedRoles={['ADMIN_DISTRIBUSI']}>
                                     <HospitalRequestsPage />
+                                </ProtectedRoute>
+                            } />
+
+                            {/* RUTE UNTUK RS SWASTA SAJA */}
+                            <Route path="/hospital-dashboard" element={
+                                <ProtectedRoute allowedRoles={['RS_SWASTA']}>
+                                    <HospitalDashboardPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/hospital-my-requests" element={
+                                <ProtectedRoute allowedRoles={['RS_SWASTA']}>
+                                    <HospitalOwnRequestsPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/hospital-blood-stocks" element={
+                                <ProtectedRoute allowedRoles={['RS_SWASTA']}>
+                                    <HospitalStockPage />
+                                </ProtectedRoute>
+                            } />
+                            <Route path="/hospital-profile" element={
+                                <ProtectedRoute allowedRoles={['RS_SWASTA']}>
+                                    <HospitalProfilePage />
                                 </ProtectedRoute>
                             } />
                         </Routes>

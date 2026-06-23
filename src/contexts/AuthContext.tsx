@@ -56,19 +56,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check token on mount
     useEffect(() => {
         const checkAuth = async () => {
-            const token = localStorage.getItem('token')
-            const storedUser = localStorage.getItem('user')
-
-            if (token && storedUser) {
-                try {
-                    const user = JSON.parse(storedUser) as User
-                    dispatch({ type: 'SET_USER', payload: { user, token } })
-                } catch {
-                    dispatch({ type: 'LOGOUT' })
-                    localStorage.removeItem('token')
-                    localStorage.removeItem('user')
-                }
-            } else {
+            try {
+                // Selalu verifikasi session dengan hit endpoint /auth/me ke backend
+                const user = await authService.getProfile()
+                localStorage.setItem('user', JSON.stringify(user))
+                localStorage.setItem('token', 'cookie-auth') // Fallback token untuk route guards di frontend
+                dispatch({ type: 'SET_USER', payload: { user, token: 'cookie-auth' } })
+            } catch {
+                dispatch({ type: 'LOGOUT' })
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+            } finally {
                 dispatch({ type: 'SET_LOADING', payload: false })
             }
         }
@@ -81,13 +79,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         try {
             const data = await authService.login(email, password)
 
-            if (data.user.role !== 'ADMIN_PMI' && data.user.role !== 'ADMIN_DISTRIBUSI') {
-                throw new Error('Akses ditolak. Layar ini khusus Admin dan Distributor UDD PMI Pringsewu.')
+            if (data.user.role !== 'ADMIN_PMI' && data.user.role !== 'ADMIN_DISTRIBUSI' && data.user.role !== 'RS_SWASTA') {
+                throw new Error('Akses ditolak. Layar ini khusus Admin, Distributor, dan RS Swasta UDD PMI Pringsewu.')
             }
 
-            localStorage.setItem('token', data.token)
+            // Simpan dummy token agar route guard / logic frontend yang mengecek token tidak break
+            localStorage.setItem('token', 'cookie-auth')
             localStorage.setItem('user', JSON.stringify(data.user))
-            dispatch({ type: 'SET_USER', payload: { user: data.user, token: data.token } })
+            dispatch({ type: 'SET_USER', payload: { user: data.user, token: 'cookie-auth' } })
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : 'Login gagal'
             dispatch({ type: 'SET_ERROR', payload: message })
@@ -95,10 +94,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
 
-    const logout = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        dispatch({ type: 'LOGOUT' })
+    const logout = async () => {
+        try {
+            await authService.logout()
+        } catch (err) {
+            console.error('Gagal memanggil API logout di backend:', err)
+        } finally {
+            localStorage.removeItem('token')
+            localStorage.removeItem('user')
+            dispatch({ type: 'LOGOUT' })
+        }
     }
 
     return (
