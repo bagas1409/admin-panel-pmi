@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Save, User as UserIcon, Phone, Droplets, MapPin, Briefcase, Heart } from 'lucide-react'
+import { X, Save, User as UserIcon, Phone, Droplets, MapPin, Briefcase, Heart, Key } from 'lucide-react'
 import { userService } from '@/api/user'
 import type { User } from '@/types'
 import LocationPicker from '@/components/ui/LocationPicker'
@@ -42,6 +42,7 @@ export default function EditUserModal({ user, onClose, onSuccess }: EditUserModa
 
   const [form, setForm] = useState({
     email: user?.email ?? '',
+    password: '',
     fullName: p?.fullName ?? '',
     nik: p?.nik ?? '',
     whatsappNumber: p?.whatsappNumber ?? '',
@@ -56,6 +57,8 @@ export default function EditUserModal({ user, onClose, onSuccess }: EditUserModa
     subdistrict: p?.subdistrict ?? '',
     city: p?.city ?? '',
   })
+  const [isResettingPassword, setIsResettingPassword] = useState(false)
+  const [tempPassword, setTempPassword] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -65,6 +68,7 @@ export default function EditUserModal({ user, onClose, onSuccess }: EditUserModa
     const pr = user.donorProfile
     setForm({
       email: user.email ?? '',
+      password: '',
       fullName: pr?.fullName ?? '',
       nik: pr?.nik ?? '',
       whatsappNumber: pr?.whatsappNumber ?? '',
@@ -79,6 +83,8 @@ export default function EditUserModal({ user, onClose, onSuccess }: EditUserModa
       subdistrict: pr?.subdistrict ?? '',
       city: pr?.city ?? '',
     })
+    setIsResettingPassword(false)
+    setTempPassword('')
     setError(null)
   }, [user])
 
@@ -99,6 +105,7 @@ export default function EditUserModal({ user, onClose, onSuccess }: EditUserModa
     try {
       await userService.update(user.id, {
         ...form,
+        password: form.password || undefined,
         bloodType: form.bloodType || undefined,
         gender: form.gender || undefined,
         birthDate: form.birthDate || undefined,
@@ -164,6 +171,65 @@ export default function EditUserModal({ user, onClose, onSuccess }: EditUserModa
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                   <input type="tel" placeholder="08xxx" className={`${inputCls} pl-9`} {...field('whatsappNumber')} />
                 </div>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-semibold text-gray-600 mb-1.5">Keamanan / Password</label>
+                {!isResettingPassword ? (
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTempPassword('')
+                        setIsResettingPassword(true)
+                      }}
+                      className="px-4 py-2 text-xs font-bold text-[var(--primary)] bg-[var(--primary)]/10 rounded-xl hover:bg-[var(--primary)]/20 transition-colors flex items-center gap-2"
+                    >
+                      <Key className="w-3.5 h-3.5" />
+                      Reset Password
+                    </button>
+                    {form.password && (
+                      <span className="text-xs text-green-600 font-semibold bg-green-50 px-2.5 py-1 rounded-lg border border-green-100 animate-pulse">
+                        Password baru telah disiapkan
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type="password"
+                        placeholder="Ketik password baru..."
+                        className={inputCls}
+                        value={tempPassword}
+                        onChange={(e) => setTempPassword(e.target.value)}
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      disabled={!tempPassword.trim()}
+                      onClick={() => {
+                        setForm(f => ({ ...f, password: tempPassword }))
+                        setIsResettingPassword(false)
+                      }}
+                      className="p-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 disabled:opacity-50 transition-colors flex items-center justify-center shrink-0"
+                      title="Terapkan password baru"
+                    >
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsResettingPassword(false)
+                      }}
+                      className="p-2.5 bg-gray-100 text-gray-500 rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center shrink-0"
+                      title="Batal"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -52,6 +52,7 @@ export const userService = {
     // Admin edit biodata pendonor
     update: async (id: string, payload: {
         email?: string
+        password?: string
         fullName?: string
         nik?: string
         whatsappNumber?: string
