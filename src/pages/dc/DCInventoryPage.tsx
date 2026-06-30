@@ -48,9 +48,8 @@ export default function DCInventoryPage() {
 
   useEffect(() => { fetchAll() }, [])
 
-  const isProcessed = form.productType !== 'WB'
   const availableWB = dcStocks[form.bloodType] || 0
-  const canSave = form.quantity > 0 && (!isProcessed || availableWB >= form.quantity)
+  const canSave = form.quantity > 0 && availableWB >= form.quantity
 
   const handleAdd = async () => {
     setSaving(true)
@@ -208,21 +207,19 @@ export default function DCInventoryPage() {
                 </div>
               </div>
 
-              {/* Info stok mentah jika produk olahan */}
-              {isProcessed && (
-                <div className={`flex items-start gap-2 p-3 rounded-xl text-sm ${
-                  availableWB < form.quantity ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-700 border border-blue-100'
-                }`}>
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <div>
-                    Stok WB mentah {form.bloodType} tersedia: <strong>{availableWB} kantong</strong>.
-                    {availableWB < form.quantity && <div className="font-bold mt-0.5">⚠️ Tidak cukup! Minta pengambilan dari UTD terlebih dahulu.</div>}
-                    {form.productType !== 'WB' && availableWB >= form.quantity && (
-                      <div className="mt-0.5">Penambahan ini akan mengurangi stok WB mentah sebesar <strong>{form.quantity} kantong</strong>.</div>
-                    )}
-                  </div>
+              {/* Info stok mentah */}
+              <div className={`flex items-start gap-2 p-3 rounded-xl text-sm ${
+                availableWB < form.quantity ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-blue-50 text-blue-700 border border-blue-100'
+              }`}>
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <div>
+                  Stok WB mentah {form.bloodType} tersedia: <strong>{availableWB} kantong</strong>.
+                  {availableWB < form.quantity && <div className="font-bold mt-0.5">⚠️ Tidak cukup! Minta pengambilan dari UTD terlebih dahulu.</div>}
+                  {availableWB >= form.quantity && (
+                    <div className="mt-0.5">Penambahan ini akan mengurangi stok WB mentah sebesar <strong>{form.quantity} kantong</strong>.</div>
+                  )}
                 </div>
-              )}
+              </div>
 
               {/* Jumlah */}
               <div>
