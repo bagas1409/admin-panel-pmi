@@ -216,7 +216,7 @@ export default function DCInventoryPage() {
                   <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div>
                     Stok WB mentah {form.bloodType} tersedia: <strong>{availableWB} kantong</strong>.
-                    {availableWB < form.quantity && <div className="font-bold mt-0.5">⚠️ Tidak cukup! Minta pengambilan dari UDD terlebih dahulu.</div>}
+                    {availableWB < form.quantity && <div className="font-bold mt-0.5">⚠️ Tidak cukup! Minta pengambilan dari UTD terlebih dahulu.</div>}
                     {form.productType !== 'WB' && availableWB >= form.quantity && (
                       <div className="mt-0.5">Penambahan ini akan mengurangi stok WB mentah sebesar <strong>{form.quantity} kantong</strong>.</div>
                     )}

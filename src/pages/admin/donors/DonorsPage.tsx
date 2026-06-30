@@ -567,7 +567,7 @@ export default function DonorsPage() {
         </div>
       )}
 
-      {/* Modal: Daftarkan (Donorin) relawan ke Event/UDD */}
+      {/* Modal: Daftarkan (Donorin) relawan ke Event/UTD */}
       <DonorinModal
         isOpen={!!donorinUser}
         user={donorinUser}

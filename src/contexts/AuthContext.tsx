@@ -80,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await authService.login(email, password)
 
             if (data.user.role !== 'ADMIN_PMI' && data.user.role !== 'ADMIN_DISTRIBUSI' && data.user.role !== 'RS_SWASTA') {
-                throw new Error('Akses ditolak. Layar ini khusus Admin, Distributor, dan RS Swasta UDD PMI Pringsewu.')
+                throw new Error('Akses ditolak. Layar ini khusus Admin, Distributor, dan RS Swasta UTD PMI Pringsewu.')
             }
 
             // Simpan dummy token agar route guard / logic frontend yang mengecek token tidak break

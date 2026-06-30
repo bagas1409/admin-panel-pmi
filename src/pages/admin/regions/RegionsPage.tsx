@@ -44,7 +44,7 @@ export default function RegionsPage() {
             const data = await regionService.getAll()
             setRegions(data)
         } catch (err: any) {
-            setError(err?.response?.data?.message || 'Gagal memuat data Cabang UDD')
+            setError(err?.response?.data?.message || 'Gagal memuat data Cabang UTD')
         } finally {
             setLoading(false)
         }
@@ -66,12 +66,12 @@ export default function RegionsPage() {
     }
 
     const handleHapus = async (id: string) => {
-        if (!confirm('Apakah Anda yakin ingin menghapus Cabang UDD ini? Seluruh riwayat dan stok terkait mungkin terdampak.')) return
+        if (!confirm('Apakah Anda yakin ingin menghapus Cabang UTD ini? Seluruh riwayat dan stok terkait mungkin terdampak.')) return
         try {
             await regionService.delete(id)
             fetchRegions()
         } catch (err: any) {
-            alert(err?.response?.data?.message || 'Gagal menghapus UDD')
+            alert(err?.response?.data?.message || 'Gagal menghapus UTD')
         }
     }
 
@@ -169,11 +169,11 @@ export default function RegionsPage() {
         <div className="space-y-6 relative">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text)]">Manajemen UDD & Wilayah</h1>
+                    <h1 className="text-2xl font-bold text-[var(--text)]">Manajemen UTD & Wilayah</h1>
                     <p className="text-sm text-[var(--text-muted)] mt-1">Kelola daftar cabang Palang Merah dan lokasi fisiknya</p>
                 </div>
                 <Button onClick={() => handleOpenModal()} className="flex items-center gap-2">
-                    <Plus className="w-5 h-5"/> Tambah UDD
+                    <Plus className="w-5 h-5"/> Tambah UTD
                 </Button>
             </div>
 
@@ -183,7 +183,7 @@ export default function RegionsPage() {
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-gray-50 border-b border-[var(--border)] text-gray-500 uppercase text-xs tracking-wider">
-                            <th className="px-6 py-4 font-bold">Kode UDD</th>
+                            <th className="px-6 py-4 font-bold">Kode UTD</th>
                             <th className="px-6 py-4 font-bold">Nama Cabang / Identitas</th>
                             <th className="px-6 py-4 font-bold">Alamat Lengkap</th>
                             <th className="px-6 py-4 font-bold">Koordinat (Lat, Lng)</th>
@@ -194,7 +194,7 @@ export default function RegionsPage() {
                         {loading ? (
                             <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Loading data cabang...</td></tr>
                         ) : regions.length === 0 ? (
-                            <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Belum ada Cabang UDD terdaftar.</td></tr>
+                            <tr><td colSpan={4} className="px-6 py-8 text-center text-gray-400">Belum ada Cabang UTD terdaftar.</td></tr>
                         ) : (
                             regions.map(r => (
                                 <tr key={r.id} className="hover:bg-gray-50/50">
@@ -234,19 +234,19 @@ export default function RegionsPage() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden border border-[var(--border)]">
                         <div className="px-6 py-4 border-b border-[var(--border)] flex justify-between items-center bg-gray-50/50">
-                            <h2 className="text-lg font-bold text-gray-800">{editingId ? 'Ubah Cabang UDD' : 'Tambah Cabang UDD Baru'}</h2>
+                            <h2 className="text-lg font-bold text-gray-800">{editingId ? 'Ubah Cabang UTD' : 'Tambah Cabang UTD Baru'}</h2>
                             <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600"><X className="w-5 h-5"/></button>
                         </div>
                         <form onSubmit={handleSubmit} className="p-6 space-y-4">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Kode UDD / Identitas Sistematik</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Kode UTD / Identitas Sistematik</label>
                                 {editingId ? (
                                     <div className="w-full px-4 py-2 bg-gray-100 border border-[var(--border)] rounded-lg text-gray-500 font-mono font-bold cursor-not-allowed">
                                         {regions.find(r => r.id === editingId)?.kodeUdd || 'Generating...'}
                                     </div>
                                 ) : (
                                     <div className="w-full px-4 py-2 border border-dashed border-gray-300 rounded-lg text-gray-400 bg-gray-50 text-sm italic">
-                                        ID akan di-generate otomatis oleh sistem setelah dibuat (ex: UDD-0001)
+                                        ID akan di-generate otomatis oleh sistem setelah dibuat (ex: UTD-0001)
                                     </div>
                                 )}
                             </div>
@@ -276,7 +276,7 @@ export default function RegionsPage() {
 
                             <div className="pt-4 flex items-center justify-end gap-3">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="px-5 py-2 rounded-lg font-semibold text-gray-600 hover:bg-gray-100 transition-colors">Batal</button>
-                                <Button type="submit" loading={isSubmitting}>{editingId ? 'Simpan Perubahan' : 'Buat UDD PMI'}</Button>
+                                <Button type="submit" loading={isSubmitting}>{editingId ? 'Simpan Perubahan' : 'Buat UTD PMI'}</Button>
                             </div>
                         </form>
                     </div>

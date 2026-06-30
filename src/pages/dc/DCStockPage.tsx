@@ -42,7 +42,7 @@ export default function DCStockPage() {
             Stok Mentah WB – Distribution Center
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-0.5">
-            Whole Blood yang diterima dari UDD, siap diolah
+            Whole Blood yang diterima dari UTD, siap diolah
           </p>
         </div>
       </div>
@@ -83,7 +83,7 @@ export default function DCStockPage() {
           <div className="bg-[var(--card-bg)] rounded-2xl border border-[var(--border)] shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-[var(--border)] flex items-center gap-2">
               <Building2 className="w-5 h-5 text-gray-500" />
-              <h3 className="font-bold text-gray-800">Riwayat Penerimaan dari UDD</h3>
+              <h3 className="font-bold text-gray-800">Riwayat Penerimaan dari UTD</h3>
               <span className="ml-auto text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">{data?.receptionLogs.length || 0} catatan</span>
             </div>
             {!data?.receptionLogs.length ? (
@@ -92,7 +92,7 @@ export default function DCStockPage() {
               <table className="w-full text-sm">
                 <thead className="bg-gray-50 border-b border-[var(--border)]">
                   <tr className="text-xs text-gray-500 uppercase tracking-wider">
-                    <th className="px-6 py-3 text-left font-bold">UDD Sumber</th>
+                    <th className="px-6 py-3 text-left font-bold">UTD Sumber</th>
                     <th className="px-6 py-3 text-left font-bold">Golongan</th>
                     <th className="px-6 py-3 text-left font-bold">Jumlah</th>
                     <th className="px-6 py-3 text-left font-bold">Disetujui Oleh</th>

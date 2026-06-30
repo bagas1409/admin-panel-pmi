@@ -117,7 +117,7 @@ export default function HospitalPartnersPage() {
       <div>
         <h1 className="text-2xl font-bold text-[var(--text)]">Daftar RS Swasta Mitra</h1>
         <p className="text-sm text-[var(--text-muted)] mt-1">
-          Manajemen dan pemantauan akun Rumah Sakit Swasta yang terdaftar di UDD PMI.
+          Manajemen dan pemantauan akun Rumah Sakit Swasta yang terdaftar di UTD PMI.
         </p>
       </div>
 

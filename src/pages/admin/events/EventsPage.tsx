@@ -184,7 +184,7 @@ export default function EventsPage() {
                                 <input required value={locationName} onChange={e=>setLocationName(e.target.value)} type="text" placeholder="Lap. Pendopo Pringsewu" className="w-full px-4 py-2 rounded-xl border border-gray-200" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Cabang UDD Penyelenggara (Opsional)</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">Cabang UTD Penyelenggara (Opsional)</label>
                                 <select 
                                     className="w-full px-4 py-2 rounded-xl border border-gray-200 bg-white"
                                     value={uddRegionId || ''}

@@ -126,7 +126,7 @@ export default function DonorinModal({ isOpen, user, onClose, onSuccess }: Props
                                         targetType === 'REGION' ? 'bg-white text-gray-900 shadow' : 'text-gray-500 hover:text-gray-700'
                                     }`}
                                 >
-                                    <MapPin className="w-4 h-4" /> UDD (Markas)
+                                    <MapPin className="w-4 h-4" /> UTD (Markas)
                                 </button>
                                 <button
                                     onClick={() => { setTargetType('EVENT'); setTargetId(''); setError(null) }}
@@ -141,11 +141,11 @@ export default function DonorinModal({ isOpen, user, onClose, onSuccess }: Props
                             {/* Dropdown Selection */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    {targetType === 'REGION' ? 'Pilih Markas UDD' : 'Pilih Kegiatan (UPCOMING/ONGOING)'}
+                                    {targetType === 'REGION' ? 'Pilih Markas UTD' : 'Pilih Kegiatan (UPCOMING/ONGOING)'}
                                 </label>
                                 
                                 {targetType === 'REGION' && regions.length === 0 && (
-                                    <p className="text-xs text-red-500 italic mt-1">Tidak ada markas UDD terdaftar.</p>
+                                    <p className="text-xs text-red-500 italic mt-1">Tidak ada markas UTD terdaftar.</p>
                                 )}
                                 
                                 {targetType === 'EVENT' && events.length === 0 && (

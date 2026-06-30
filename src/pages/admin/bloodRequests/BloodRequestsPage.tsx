@@ -40,7 +40,7 @@ export default function BloodRequestsPage() {
   useEffect(() => { fetchAll() }, [filterStatus])
 
   const handleApprove = async (id: string) => {
-    if (!confirm('Setujui permintaan ini? Stok UDD Anda akan berkurang secara otomatis.')) return
+    if (!confirm('Setujui permintaan ini? Stok UTD Anda akan berkurang secara otomatis.')) return
     setProcessingId(id)
     try { await approveStockRequest(id); fetchAll() }
     catch (e: any) { alert(e?.response?.data?.message || 'Gagal menyetujui') }
@@ -64,7 +64,7 @@ export default function BloodRequestsPage() {
           Permintaan Darah (Dari DC)
         </h1>
         <p className="text-sm text-[var(--text-muted)] mt-1">
-          Daftar antrean permintaan pengambilan WB dari Distribution Center ke UDD Anda.
+          Daftar antrean permintaan pengambilan WB dari Distribution Center ke UTD Anda.
         </p>
       </div>
 
@@ -126,7 +126,7 @@ export default function BloodRequestsPage() {
                       <div>
                         <div className="text-3xl font-black text-gray-800">{r.quantity} <span className="text-sm text-gray-500 font-medium">Kantong</span></div>
                         <div className="text-xs font-semibold text-gray-400 mt-0.5 flex items-center gap-1">
-                          <MapPin className="w-3 h-3" /> {r.region?.name || 'UDD'}
+                          <MapPin className="w-3 h-3" /> {r.region?.name || 'UTD'}
                         </div>
                       </div>
                   </div>
@@ -194,7 +194,7 @@ export default function BloodRequestsPage() {
 
                 <div className="space-y-4 text-left">
                    <div>
-                     <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Dari UDD</div>
+                     <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Dari UTD</div>
                      <div className="font-semibold text-gray-800 text-sm">{selectedRequest.region?.name}</div>
                    </div>
                    

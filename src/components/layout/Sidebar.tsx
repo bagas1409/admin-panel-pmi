@@ -21,7 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const navItems = [
   { to: "/dashboard", label: "Dashboard Matriks", icon: LayoutDashboard, roles: ['ADMIN_PMI'] },
   { to: "/events", label: "Event Keliling", icon: CalendarDays, roles: ['ADMIN_PMI'] },
-  { to: "/regions", label: "Manajemen UDD", icon: MapPin, roles: ['ADMIN_PMI'] },
+  { to: "/regions", label: "Manajemen UTD", icon: MapPin, roles: ['ADMIN_PMI'] },
   { to: "/blood-requests", label: "Permintaan Darah", icon: FileText, roles: ['ADMIN_PMI'] },
   { to: "/distribution", label: "Distribusi Stok Darah", icon: ArrowDownCircle, roles: ['ADMIN_DISTRIBUSI'] },
   { to: "/hospital-requests", label: "Permintaan RS Swasta", icon: Building2, roles: ['ADMIN_DISTRIBUSI'] },

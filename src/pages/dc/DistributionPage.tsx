@@ -70,7 +70,7 @@ export default function DistributionPage() {
             Distribusi Stok Darah
           </h1>
           <p className="text-sm text-[var(--text-muted)] mt-1">
-            Kelola permintaan pengambilan stok WB ke UDD. Menunggu persetujuan dari sisi UDD di menu Permintaan Darah.
+            Kelola permintaan pengambilan stok WB ke UTD. Menunggu persetujuan dari sisi UTD di menu Permintaan Darah.
           </p>
         </div>
         <div className="flex gap-2">
@@ -121,7 +121,7 @@ export default function DistributionPage() {
             <table className="w-full text-sm">
               <thead className="bg-gray-50 border-b border-[var(--border)]">
                 <tr className="text-xs text-gray-500 uppercase tracking-wider">
-                  <th className="px-6 py-3 text-left font-bold">UDD Sumber</th>
+                  <th className="px-6 py-3 text-left font-bold">UTD Sumber</th>
                   <th className="px-6 py-3 text-left font-bold">Golongan</th>
                   <th className="px-6 py-3 text-left font-bold">Jumlah</th>
                   <th className="px-6 py-3 text-left font-bold">Status</th>
@@ -136,7 +136,7 @@ export default function DistributionPage() {
                   return (
                     <tr key={r.id} className="hover:bg-gray-50/50 cursor-pointer group transition-colors" onClick={() => setSelectedRequest(r)}>
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900">{r.region?.name || 'UDD Tidak Diketahui'}</div>
+                        <div className="font-semibold text-gray-900">{r.region?.name || 'UTD Tidak Diketahui'}</div>
                         {r.notes && <div className="text-xs text-gray-400 italic mt-0.5 truncate max-w-[150px]">"{r.notes}"</div>}
                       </td>
                       <td className="px-6 py-4">
@@ -183,7 +183,7 @@ export default function DistributionPage() {
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">UDD Sumber</label>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">UTD Sumber</label>
                 <select
                   value={form.regionId}
                   onChange={e => setForm(f => ({ ...f, regionId: e.target.value }))}
@@ -266,10 +266,10 @@ export default function DistributionPage() {
                   <div className="text-[10px] font-bold opacity-80 mt-1">Diajukan: {new Date(selectedRequest.requestedAt).toLocaleString('id-ID')}</div>
                 </div>
                 <div className="flex-1 p-4 rounded-xl border flex flex-col justify-center bg-blue-50 text-blue-700 border-blue-200">
-                  <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">UDD Sumber</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest opacity-70 mb-1">UTD Sumber</div>
                   <div className="font-bold text-sm flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
-                    {selectedRequest.region?.name || 'UDD Tidak Diketahui'}
+                    {selectedRequest.region?.name || 'UTD Tidak Diketahui'}
                   </div>
                 </div>
               </div>

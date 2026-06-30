@@ -68,7 +68,7 @@ export default function DistributionCenterPage() {
                 </div>
                 <div>
                   <h2 className="font-bold text-gray-800 text-base">Stok Mentah WB</h2>
-                  <p className="text-xs text-gray-500">Whole Blood dari UDD</p>
+                  <p className="text-xs text-gray-500">Whole Blood dari UTD</p>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-[var(--primary)] transition-colors" />
@@ -97,7 +97,7 @@ export default function DistributionCenterPage() {
 
             <p className="text-xs text-gray-400 mt-4 flex items-center gap-1">
               <TrendingUp className="w-3 h-3" />
-              Lihat riwayat penerimaan dari UDD →
+              Lihat riwayat penerimaan dari UTD →
             </p>
           </button>
 

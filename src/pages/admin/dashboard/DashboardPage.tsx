@@ -25,7 +25,7 @@ const BLOOD_COLORS: Record<
 
 const SOURCE_LABELS: Record<string, string> = {
   EVENT: 'Event Keliling',
-  UDD: 'Markas UDD',
+  UDD: 'Markas UTD',
   MANUAL: 'Manual'
 };
 
@@ -150,7 +150,7 @@ export default function DashboardPage() {
               Dashboard Ketersediaan
             </h1>
             <p className="text-sm text-[var(--text-muted)] max-w-xl">
-              Monitor and analyze real-time plasma and whole blood supply metrics across all UDD PMI Pringsewu branches.
+              Monitor and analyze real-time plasma and whole blood supply metrics across all UTD PMI Pringsewu branches.
             </p>
           </div>
         <div className="flex gap-3">
@@ -229,7 +229,7 @@ export default function DashboardPage() {
             <table className="w-full text-left border-collapse">
               <thead className="bg-[var(--background)]/80 border-b border-slate-200">
                 <tr>
-                  <th className="px-6 py-4 text-[11px] font-bold text-[var(--text-muted)] tracking-wider uppercase">Cabang UDD</th>
+                  <th className="px-6 py-4 text-[11px] font-bold text-[var(--text-muted)] tracking-wider uppercase">Cabang UTD</th>
                   {BLOOD_TYPES.map(bt => (
                     <th key={bt} className="px-4 py-4 text-[11px] font-bold text-center tracking-wider uppercase" style={{ color: BLOOD_COLORS[bt].text }}>
                       WB-{bt}
